@@ -440,6 +440,227 @@
           "agent_behavior": "When user requests to create a spec related to code, suggest including the tasks array pattern and offer to add task objects based on the spec requirements"
         }
       }
+    },
+    "py-snake": {
+      "__meta": {
+        "type": "game",
+        "description": "Classic Python snake game with pygame - grow by eating apples, track score, game over on collision",
+        "status": "active",
+        "tags": [
+          "python",
+          "pygame",
+          "game"
+        ],
+        "location": "py-snake/"
+      },
+      "requirements": {
+        "language": "Python 3.8+",
+        "library": "pygame",
+        "features": [
+          "Snake grows when eating apples",
+          "Game over on wall or self collision",
+          "Score tracking based on apples eaten",
+          "Visual game (no sound)",
+          "Arrow key controls"
+        ]
+      },
+      "components": {
+        "snake": {
+          "__meta": {
+            "type": "component",
+            "description": "Snake entity with movement, growth, collision detection, and rendering - complex component requiring dedicated implementation",
+            "status": "active",
+            "location": "py-snake/snake_game.py",
+            "complexity": "high",
+            "subagent_required": true
+          },
+          "data_structure": {
+            "body": "List of (x, y) coordinate tuples representing each segment",
+            "direction": "Current direction vector as (dx, dy) tuple",
+            "pending_growth": "Integer tracking segments to add on next update"
+          },
+          "properties": {
+            "initial_position": "(10, 10) grid coordinates",
+            "initial_length": 3,
+            "initial_direction": "(1, 0) moving right",
+            "color": "RGB (0, 255, 0) green",
+            "segment_size": "30 pixels (matching grid cell size)"
+          },
+          "behavior": {
+            "movement": {
+              "description": "Snake moves one grid cell per game tick in current direction",
+              "implementation": "Add new head position in direction, remove tail segment (unless growing)",
+              "direction_change": "Cannot reverse directly (e.g., if moving right, cannot go left)",
+              "speed": "Game updates every 100ms"
+            },
+            "growth": {
+              "description": "When apple eaten, snake grows by 1 segment",
+              "implementation": "On apple collision, increment pending_growth. Do not remove tail segment on next move.",
+              "visual": "Growth appears at tail end on next movement"
+            },
+            "collision_detection": {
+              "self_collision": {
+                "description": "Check if head position matches any body segment position",
+                "trigger": "Game over"
+              },
+              "wall_collision": {
+                "description": "Check if head x or y is outside grid bounds (0-19)",
+                "trigger": "Game over"
+              },
+              "apple_collision": {
+                "description": "Check if head position matches apple position",
+                "trigger": "Increment score, grow snake, spawn new apple"
+              }
+            }
+          },
+          "methods": {
+            "move": "Update snake position based on current direction and handle growth",
+            "change_direction": "Set new direction if valid (not 180-degree turn)",
+            "check_self_collision": "Return true if head collides with body",
+            "check_wall_collision": "Return true if head is out of bounds",
+            "grow": "Increment pending_growth counter",
+            "render": "Draw all segments as rectangles on pygame surface"
+          },
+          "input_handling": {
+            "arrow_up": "Set direction to (0, -1) if current direction is not (0, 1)",
+            "arrow_down": "Set direction to (0, 1) if current direction is not (0, -1)",
+            "arrow_left": "Set direction to (-1, 0) if current direction is not (1, 0)",
+            "arrow_right": "Set direction to (1, 0) if current direction is not (-1, 0)"
+          },
+          "tasks": [
+            {
+              "name": "Initialize Snake class",
+              "description": "Create Snake class with __init__ method setting up body list, direction, and growth counter",
+              "done": false
+            },
+            {
+              "name": "Implement move method",
+              "description": "Add move logic that updates head position and handles tail removal/growth",
+              "done": false
+            },
+            {
+              "name": "Implement direction change",
+              "description": "Add change_direction method with 180-degree turn prevention",
+              "done": false
+            },
+            {
+              "name": "Implement collision detection",
+              "description": "Add methods for self, wall, and apple collision detection",
+              "done": false
+            },
+            {
+              "name": "Implement render method",
+              "description": "Add rendering logic to draw all snake segments on pygame surface",
+              "done": false
+            }
+          ]
+        },
+        "apple": {
+          "__meta": {
+            "type": "component",
+            "description": "Apple/food entity with random spawning",
+            "status": "active",
+            "location": "py-snake/snake_game.py",
+            "complexity": "low"
+          },
+          "properties": {
+            "position": "(x, y) grid coordinates",
+            "color": "RGB (255, 0, 0) red",
+            "size": "30 pixels"
+          },
+          "behavior": {
+            "spawning": "Generate random position within grid bounds, ensure not on snake body",
+            "collision": "Detected when snake head matches apple position"
+          }
+        },
+        "game-manager": {
+          "__meta": {
+            "type": "component",
+            "description": "Main game loop, state management, and rendering coordination",
+            "status": "active",
+            "location": "py-snake/snake_game.py",
+            "complexity": "medium"
+          },
+          "responsibilities": [
+            "Initialize pygame and game window",
+            "Handle main game loop and timing",
+            "Process keyboard input events",
+            "Coordinate snake and apple updates",
+            "Render score display",
+            "Handle game over state and display"
+          ]
+        }
+      },
+      "tasks": [
+        {
+          "name": "Setup project structure",
+          "description": "Create py-snake/ directory and requirements.txt with pygame dependency",
+          "done": true
+        },
+        {
+          "name": "Implement Snake component",
+          "description": "Create Snake class with all movement, growth, and collision logic (spawn subagent for this)",
+          "done": true
+        },
+        {
+          "name": "Implement Apple component",
+          "description": "Create Apple class with random positioning logic",
+          "done": true
+        },
+        {
+          "name": "Implement Game Manager",
+          "description": "Create main game loop with pygame window, event handling, and rendering coordination",
+          "done": true
+        },
+        {
+          "name": "Integrate components",
+          "description": "Connect Snake, Apple, and Game Manager with proper event flow",
+          "done": true
+        },
+        {
+          "name": "Add score display",
+          "description": "Display current score on screen using pygame font rendering",
+          "done": true
+        },
+        {
+          "name": "Add game over screen",
+          "description": "Display game over message with final score and restart option",
+          "done": true
+        },
+        {
+          "name": "Create README",
+          "description": "Add README.md with installation and play instructions",
+          "done": true
+        }
+      ],
+      "gameplay": {
+        "controls": {
+          "up": "Arrow Up",
+          "down": "Arrow Down",
+          "left": "Arrow Left",
+          "right": "Arrow Right"
+        },
+        "rules": {
+          "starting_length": 3,
+          "growth_per_apple": 1,
+          "game_over_conditions": [
+            "Snake hits wall",
+            "Snake hits itself"
+          ],
+          "scoring": "1 point per apple eaten"
+        },
+        "display": {
+          "window_size": "600x600 pixels",
+          "grid_size": "20x20 cells",
+          "cell_size": "30 pixels",
+          "colors": {
+            "background": "black",
+            "snake": "green",
+            "apple": "red",
+            "text": "white"
+          }
+        }
+      }
     }
   },
   "worker": {
