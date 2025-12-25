@@ -213,6 +213,20 @@
       "description": "On initialization, agent must read the worker object which contains all operational definitions",
       "cli_fetch": "JSPEC_CLI=$(jq -r '.specs[\"jspec-cli\"].location' .jspec/source.json)"
     },
+    "commands_location": ".opencode/commands",
+    "commands_description": "All jspec-worker commands are defined as individual markdown files in .opencode/commands/ directory. Each command file contains description, steps, and additional context.",
+    "available_commands": [
+      "jspec-extend",
+      "jspec-update", 
+      "jspec-validate",
+      "jspec-analyze",
+      "jspec-suggest-specs",
+      "jspec-sync",
+      "jspec-test-sync",
+      "jspec-implement",
+      "jspec-explain",
+      "jspec-verify"
+    ],
     "reading_policy": {
       "cli_mandatory": true,
       "bootstrap_exceptions": [
@@ -233,129 +247,6 @@
         "$JSPEC_CLI remove-spec - for removing specs"
       ],
       "rationale": "Ensures consistent access patterns, proper tool usage validation, and single source of truth for spec retrieval"
-    },
-    "commands": {
-      "extend": {
-        "description": "Add a new spec to the jspec file",
-        "syntax": "/jspec-worker extend <spec-id> <type> <description> [tags...]",
-        "steps": [
-          "Fetch CLI location using bootstrap pattern",
-          "Validate the spec-id follows kebab-case convention",
-          "Check if spec already exists using $JSPEC_CLI get <spec-id>",
-          "Use $JSPEC_CLI add-spec to add the spec",
-          "Confirm success and show the added spec using $JSPEC_CLI get <spec-id>"
-        ]
-      },
-      "update": {
-        "description": "Update an existing spec field",
-        "syntax": "/jspec-worker update <spec-id> <field> <value>",
-        "steps": [
-          "Fetch CLI location",
-          "Verify the spec exists using $JSPEC_CLI get <spec-id>",
-          "Use $JSPEC_CLI update-spec to update the field",
-          "Show the updated spec using $JSPEC_CLI get <spec-id>"
-        ]
-      },
-      "validate": {
-        "description": "Validate the jspec structure and check for inconsistencies",
-        "syntax": "/jspec-worker validate",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI list to get all spec IDs",
-          "Check required project fields exist (use jq for project metadata)",
-          "For each spec, use $JSPEC_CLI get <spec-id> to validate required fields",
-          "Check for kebab-case naming in spec IDs",
-          "Verify no duplicate spec IDs",
-          "Report any issues found or confirm validity"
-        ]
-      },
-      "analyze": {
-        "description": "Analyze the current jspec structure and provide recommendations",
-        "syntax": "/jspec-worker analyze",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI list to get all spec IDs",
-          "Count total specs by type by reading each with $JSPEC_CLI get <spec-id>",
-          "Identify specs with draft status",
-          "Check for missing descriptions or empty fields",
-          "Analyze tag usage and suggest consolidation if needed",
-          "Check if project metadata is complete",
-          "Provide actionable recommendations"
-        ]
-      },
-      "suggest-specs": {
-        "description": "Suggest missing specs based on codebase analysis",
-        "syntax": "/jspec-worker suggest-specs",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI list to see existing spec IDs",
-          "Analyze the codebase structure",
-          "Look for undocumented APIs, models, components, services",
-          "Compare against existing specs",
-          "Suggest new specs with ready-to-run commands"
-        ]
-      },
-      "sync": {
-        "description": "Ensure jspec is in sync with actual codebase structure",
-        "syntax": "/jspec-worker sync",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI list to get all spec IDs",
-          "For each spec, use $JSPEC_CLI get <spec-id> to read details",
-          "Verify referenced code/files still exist",
-          "Check for deprecated or removed code references",
-          "Look for new code that should have specs",
-          "Report discrepancies and offer updates"
-        ]
-      },
-      "test-sync": {
-        "description": "Verify that all specs are actually implemented in the codebase",
-        "syntax": "/jspec-worker test-sync",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI list to get all spec IDs",
-          "For each spec, use $JSPEC_CLI get <spec-id> to check implementation status",
-          "Verify location field points to existing files",
-          "Check status field (draft/active/deprecated)",
-          "Generate comprehensive implementation report",
-          "Suggest actions for missing implementations"
-        ]
-      },
-      "implement": {
-        "description": "Implement a spec according to its requirements",
-        "syntax": "/jspec-worker implement <spec-id>",
-        "steps": [
-          "Fetch CLI location",
-          "Read the spec using $JSPEC_CLI get <spec-id>",
-          "Understand requirements, type, location, dependencies",
-          "Check for child specs or sub-components",
-          "Break down complex specs into tasks",
-          "Implement code/files according to spec",
-          "Update spec status if needed using $JSPEC_CLI update-spec",
-          "Report what was implemented"
-        ]
-      },
-      "explain": {
-        "description": "Read and explain a specific spec details",
-        "syntax": "/jspec-worker explain <spec-id>",
-        "steps": [
-          "Fetch CLI location",
-          "Use $JSPEC_CLI get <spec-id> to read the spec",
-          "Extract and explain all relevant details",
-          "Provide comprehensive explanation"
-        ]
-      },
-      "verify": {
-        "description": "Verify if a spec is implemented correctly",
-        "syntax": "/jspec-worker verify <spec-id>",
-        "steps": [
-          "Fetch CLI location",
-          "Read spec requirements using $JSPEC_CLI get <spec-id>",
-          "Check if implementation exists at specified location",
-          "Verify implementation matches requirements",
-          "Report compliance or discrepancies"
-        ]
-      }
     },
     "guidelines": [
       "Always validate input - check spec-id naming conventions and required fields",

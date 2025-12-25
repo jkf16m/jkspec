@@ -8,7 +8,7 @@
 jq '.worker' .jspec/source.json
 ```
 
-All your operational definitions, commands, guidelines, and behaviors are defined in the `worker` object within `.jspec/source.json`. You MUST read this object before performing any operations.
+All your operational definitions, guidelines, and behaviors are defined in the `worker` object within `.jspec/source.json`. You MUST read this object before performing any operations.
 
 ## What the Worker Object Contains
 
@@ -19,30 +19,20 @@ The `worker` object in `.jspec/source.json` is the **single source of truth** fo
 - **`description`**: Why you need to read the worker object
 - **`cli_fetch`**: How to fetch the CLI tool location
 
+### `worker.commands_location`
+- Path to the directory containing all command definitions
+- Default: `.opencode/commands`
+
+### `worker.available_commands`
+- List of all available command names
+- Each command has its own markdown file in the commands directory
+
 ### `worker.reading_policy`
 - **`cli_mandatory`**: Boolean indicating CLI is required for reading specs
 - **`bootstrap_exceptions`**: List of cases where direct jq queries are allowed
 - **`allowed_direct_queries`**: Exact jq patterns you can use directly
 - **`mandatory_cli_usage`**: Commands you MUST use for spec operations
 - **`rationale`**: Why this policy exists
-
-### `worker.commands`
-Each command object contains:
-- **`description`**: What the command does
-- **`syntax`**: How to invoke the command
-- **`steps`**: Array of steps to execute the command
-
-Available commands:
-- `extend` - Add new specs
-- `update` - Update existing specs
-- `validate` - Validate jspec structure
-- `analyze` - Analyze and provide recommendations
-- `suggest-specs` - Suggest missing specs
-- `sync` - Sync specs with codebase
-- `test-sync` - Verify implementations exist
-- `implement` - Implement a spec
-- `explain` - Explain a spec's details
-- `verify` - Verify implementation correctness
 
 ### `worker.guidelines`
 Array of operational guidelines you must follow.
@@ -54,28 +44,50 @@ Array of operational guidelines you must follow.
 ## Your Workflow
 
 1. **On initialization**: Run `jq '.worker' .jspec/source.json`
-2. **Read the worker object**: Understand all commands, policies, and guidelines
-3. **Execute commands**: Follow the steps defined in `worker.commands.<command>.steps`
-4. **Follow policies**: Adhere to `worker.reading_policy` rules
-5. **Apply guidelines**: Follow all items in `worker.guidelines`
+2. **Read the worker object**: Understand all configuration, policies, and guidelines
+3. **Access commands**: Read command files from `.opencode/commands/` as needed
+4. **Execute commands**: Follow the steps defined in each command's markdown file
+5. **Follow policies**: Adhere to `worker.reading_policy` rules
+6. **Apply guidelines**: Follow all items in `worker.guidelines`
+
+## Command Structure
+
+All commands are defined in `.opencode/commands/` directory as individual markdown files:
+
+- `jspec-extend.md` - Add new specs
+- `jspec-update.md` - Update existing specs
+- `jspec-validate.md` - Validate jspec structure
+- `jspec-analyze.md` - Analyze and provide recommendations
+- `jspec-suggest-specs.md` - Suggest missing specs
+- `jspec-sync.md` - Sync specs with codebase
+- `jspec-test-sync.md` - Verify implementations exist
+- `jspec-implement.md` - Implement a spec
+- `jspec-explain.md` - Explain a spec's details
+- `jspec-verify.md` - Verify implementation correctness
+
+Each command file contains:
+- Description of what the command does
+- Step-by-step execution instructions
+- Additional context (checks, formats, strategies, etc.)
 
 ## Why This Design?
 
 This design ensures:
-- **Self-documenting**: All behavior is defined in the spec itself
-- **Version controlled**: Changes to behavior are tracked with the spec
+- **Self-documenting**: All behavior is defined in version-controlled files
+- **Modular**: Each command is independent and easy to update
 - **Queryable**: Easy to inspect and understand agent behavior
 - **Maintainable**: Single source of truth, no duplication
-- **Extensible**: Add new commands by updating the worker object
+- **Extensible**: Add new commands by creating new markdown files
+- **OpenCode Compatible**: Follows OpenCode conventions for command definitions
 
 ## Example: How to Execute a Command
 
 When a user runs `/jspec-worker explain jspec-format`:
 
 1. You've already read `worker` object during bootstrap
-2. Look up `worker.commands.explain`
-3. Read the `steps` array
+2. Look up command location: `.opencode/commands/jspec-explain.md`
+3. Read the command file
 4. Execute each step in order
-5. Follow the `syntax` and `description` guidelines
+5. Follow the additional context and guidelines
 
-The worker object tells you **exactly** what to do.
+The command file tells you **exactly** what to do.
