@@ -484,6 +484,241 @@
             "Easy to add/remove tasks without renumbering"
           ],
           "agent_behavior": "When user requests to create a spec related to code, suggest including the tasks array pattern and offer to add task objects based on the spec requirements"
+        },
+        "readme-documentation": {
+          "__meta": {
+            "type": "documentation",
+            "description": "README.md documentation for jkspec project with vision, advantages, disadvantages, and buy-me-a-coffee support button",
+            "status": "active",
+            "tags": [
+              "documentation",
+              "meta",
+              "readme"
+            ],
+            "location": "README.md",
+            "purpose": "Provide clear, honest documentation about jkspec as a prototype with potential for agent-driven development"
+          },
+          "sections": {
+            "header": {
+              "title": "jkspec",
+              "tagline": "JSON-based specification format for rapid AI agent context retrieval"
+            },
+            "what_is_jkspec": {
+              "description": "Explain what jkspec is and its core purpose",
+              "content_draft": "jkspec is a single-file, JSON-based specification format designed to eliminate the context-gathering overhead AI agents face when working with codebases. Instead of agents spending time exploring directories, reading multiple files, and piecing together project structure, jkspec provides a centralized `.jkspec/source.json` file that agents can query instantly using `jq`.\n\nThink of it as a \"map\" for AI agents - a structured, queryable source of truth about your project's architecture, components, conventions, and implementation status."
+            },
+            "vision": {
+              "description": "The vision and philosophy behind jkspec",
+              "content_draft": "The vision of jkspec emerged from observing a consistent pattern: AI agents waste significant time and tokens exploring codebases before they can start actual work. Every conversation begins with \"let me look at your project structure\" followed by multiple file reads and questions.\n\njkspec flips this paradigm. What if agents could instantly access:\n- Project architecture and conventions\n- What exists and what doesn't\n- Implementation status of features\n- Dependencies and relationships\n- Historical decisions and rationale\n\nAll queryable in milliseconds with simple `jq` commands.\n\nThe broader vision is **spec-driven development with AI agents** - where specifications aren't just documentation, but active, queryable contracts that guide agent behavior and reduce ambiguity."
+            },
+            "prototype_notice": {
+              "description": "Transparent notice that this is a prototype",
+              "tone": "honest and encouraging",
+              "content_draft": "⚠️ **This is a prototype.** jkspec is an experiment in improving AI agent workflows. It's rough around the edges, the conventions are still evolving, and there are likely better ways to solve some of these problems.\n\nThat said, I've found it genuinely useful in my own agent-assisted development, and I believe the core idea has potential. If you're interested in exploring new ways to work with AI coding assistants, give it a try. Feedback, ideas, and constructive criticism are welcome."
+            },
+            "advantages": {
+              "description": "Key advantages of using jkspec",
+              "items": [
+                {
+                  "title": "Instant Context",
+                  "description": "Agents get full project context in a single jq query - no exploration needed"
+                },
+                {
+                  "title": "Single Source of Truth",
+                  "description": "One file contains architecture, conventions, specs, and status - no scattered documentation"
+                },
+                {
+                  "title": "Queryable Structure",
+                  "description": "Use jq to filter by type, status, tags - agents can find exactly what they need"
+                },
+                {
+                  "title": "Implementation Tracking",
+                  "description": "Track what's draft vs active vs deprecated - clear visibility into project state"
+                },
+                {
+                  "title": "Hierarchical Specs",
+                  "description": "Nest specs arbitrarily deep to match your architecture - from high-level features down to specific validations"
+                },
+                {
+                  "title": "Version Control Friendly",
+                  "description": "JSON file diffs clearly show spec changes - easy to review and track evolution"
+                },
+                {
+                  "title": "No External Dependencies",
+                  "description": "Just JSON and jq - no special tools or frameworks required"
+                },
+                {
+                  "title": "Agent-Optimized",
+                  "description": "Designed specifically for AI agent consumption, not just human documentation"
+                }
+              ]
+            },
+            "disadvantages": {
+              "description": "Honest assessment of current limitations and tradeoffs",
+              "items": [
+                {
+                  "title": "Manual Sync Required",
+                  "description": "Specs don't automatically update when code changes - requires discipline to keep in sync"
+                },
+                {
+                  "title": "Learning Curve",
+                  "description": "Requires learning jq syntax and understanding the jkspec structure conventions"
+                },
+                {
+                  "title": "JSON Verbosity",
+                  "description": "JSON can be verbose - large projects might have unwieldy source.json files"
+                },
+                {
+                  "title": "Not Human-Optimized",
+                  "description": "Reading raw JSON isn't as pleasant as markdown docs for humans (though agents don't mind)"
+                },
+                {
+                  "title": "Prototype Limitations",
+                  "description": "Conventions still evolving, tooling is minimal, edge cases not fully explored"
+                },
+                {
+                  "title": "Single File Bottleneck",
+                  "description": "All specs in one file can cause merge conflicts in team environments"
+                },
+                {
+                  "title": "No Schema Validation Yet",
+                  "description": "While a schema exists, enforcement and validation tooling is minimal"
+                }
+              ]
+            },
+            "quick_start": {
+              "description": "Basic quick start instructions",
+              "content_draft": "1. Copy `jkspec-template/.jkspec/source.json` to your project as `.jkspec/source.json`\n2. Update the `project` section with your project details\n3. Add specs to the `specs` object using kebab-case keys\n4. Query with jq: `jq .specs .jkspec/source.json`\n\nFor AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`."
+            },
+            "core_concepts": {
+              "description": "Brief explanation of core jkspec concepts",
+              "concepts": [
+                {
+                  "name": "Specs",
+                  "description": "Each spec has a `__meta` object (type, description, status, tags) plus any custom fields"
+                },
+                {
+                  "name": "Status Lifecycle",
+                  "description": "draft → active → deprecated"
+                },
+                {
+                  "name": "Hierarchical Structure",
+                  "description": "Specs can nest using keys like children, components, endpoints, tests, etc."
+                },
+                {
+                  "name": "Internal Specs",
+                  "description": "Specs prefixed with `__` are internal/meta specs (like `__jkspec` itself)"
+                },
+                {
+                  "name": "jq Queries",
+                  "description": "Direct JSON manipulation using jq for all read/write operations"
+                }
+              ]
+            },
+            "examples": {
+              "description": "Practical jq examples",
+              "queries": [
+                {
+                  "description": "List all specs",
+                  "command": "jq .specs | keys .jkspec/source.json"
+                },
+                {
+                  "description": "Get a specific spec",
+                  "command": "jq .specs[\"spec-name\"] .jkspec/source.json"
+                },
+                {
+                  "description": "Find all draft specs",
+                  "command": "jq .specs | to_entries[] | select(.value.__meta.status == \"draft\") .jkspec/source.json"
+                },
+                {
+                  "description": "Filter by type",
+                  "command": "jq .specs | to_entries[] | select(.value.__meta.type == \"api\") .jkspec/source.json"
+                }
+              ]
+            },
+            "use_cases": {
+              "description": "When jkspec might be useful",
+              "scenarios": [
+                "Working with AI coding agents frequently",
+                "Want to reduce agent context-gathering overhead",
+                "Need structured, queryable project documentation",
+                "Exploring spec-driven development approaches",
+                "Building agent-first development workflows"
+              ]
+            },
+            "support": {
+              "description": "Buy me a coffee section at the end",
+              "content_draft": "If you find jkspec useful or interesting, consider buying me a coffee! This is a personal experiment and any support helps me continue exploring ideas like this.\n\n[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/jdfm24)"
+            }
+          },
+          "tasks": [
+            {
+              "name": "Write header and tagline",
+              "description": "Create project title and compelling tagline",
+              "done": true
+            },
+            {
+              "name": "Write What is jkspec section",
+              "description": "Clear explanation of what jkspec is and core purpose",
+              "done": true
+            },
+            {
+              "name": "Write Vision section",
+              "description": "Explain the vision and philosophy behind jkspec",
+              "done": true
+            },
+            {
+              "name": "Write Prototype Notice",
+              "description": "Honest, encouraging notice about prototype status",
+              "done": true
+            },
+            {
+              "name": "Write Advantages section",
+              "description": "List key advantages with clear descriptions",
+              "done": true
+            },
+            {
+              "name": "Write Disadvantages section",
+              "description": "Honest assessment of limitations and tradeoffs",
+              "done": true
+            },
+            {
+              "name": "Write Quick Start section",
+              "description": "Simple getting started instructions",
+              "done": true
+            },
+            {
+              "name": "Write Core Concepts section",
+              "description": "Brief explanation of key jkspec concepts",
+              "done": true
+            },
+            {
+              "name": "Write Examples section",
+              "description": "Practical jq query examples",
+              "done": true
+            },
+            {
+              "name": "Write Use Cases section",
+              "description": "When jkspec might be useful",
+              "done": true
+            },
+            {
+              "name": "Add Buy Me a Coffee section",
+              "description": "Add support button with link at the end",
+              "done": true
+            },
+            {
+              "name": "Review and polish",
+              "description": "Final review for tone, clarity, and completeness",
+              "done": true
+            }
+          ],
+          "style_guidelines": {
+            "tone": "Honest, pragmatic, encouraging",
+            "voice": "First-person when discussing prototype status and personal experience",
+            "technical_level": "Accessible to developers familiar with JSON and basic command-line tools",
+            "approach": "Lead with value proposition, be transparent about limitations, focus on practical utility"
+          }
         }
       }
     }
