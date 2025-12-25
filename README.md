@@ -80,10 +80,19 @@ While a schema exists, enforcement and validation tooling is minimal
 
 ## Quick Start
 
-1. Copy `jkspec-template/.jkspec/source.json` to your project as `.jkspec/source.json`
-2. Update the `project` section with your project details
-3. Add specs to the `specs` object using kebab-case keys
-4. Query with jq: `jq '.specs' .jkspec/source.json`
+1. Clone jkspec into your project (without git history):
+   ```bash
+   npx degit jkf16m/jkspec your-project/.jkspec-base
+   ```
+
+2. Copy the template to your project root:
+   ```bash
+   cp your-project/.jkspec-base/jkspec-template/.jkspec/source.json your-project/.jkspec/source.json
+   ```
+
+3. Update the `project` section in `.jkspec/source.json` with your project details
+4. Add your own specs to the `specs` object using kebab-case keys
+5. Query with jq: `jq '.specs' .jkspec/source.json`
 
 For AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`.
 
