@@ -87,7 +87,8 @@ While a schema exists, enforcement and validation tooling is minimal
 
 2. The `.jkspec/source.json` file is your starting template - customize it:
    - Update the `project` section with your project details
-   - Remove or modify the `__jkspec` internal spec as needed
+   - **NEVER remove `__jkspec`** - it defines the jkspec framework itself
+   - Modifying `__jkspec` means modifying the framework (jkspec is self-modifiable by design)
    - Add your own specs to the `specs` object using kebab-case keys
 
 3. Query with jq: `jq '.specs' .jkspec/source.json`
@@ -106,7 +107,7 @@ draft → active → deprecated
 Specs can nest using keys like children, components, endpoints, tests, etc.
 
 **Internal Specs**  
-Specs prefixed with `__` are internal/meta specs (like `__jkspec` itself)
+Specs prefixed with `__` are internal/meta specs that define the framework itself (like `__jkspec`). These specs should never be deleted. Modifying them means modifying the jkspec framework behavior - the framework is intentionally self-modifiable
 
 **jq Queries**  
 Direct JSON manipulation using jq for all read/write operations

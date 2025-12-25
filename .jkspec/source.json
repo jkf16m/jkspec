@@ -573,7 +573,7 @@
             },
             "quick_start": {
               "description": "Basic quick start instructions",
-              "content_draft": "1. Clone jkspec into your project (without git history):\n   ```bash\n   npx degit jkf16m/jkspec .jkspec\n   ```\n\n2. The `.jkspec/source.json` file is your starting template - customize it:\n   - Update the `project` section with your project details\n   - Remove or modify the `__jkspec` internal spec as needed\n   - Add your own specs to the `specs` object using kebab-case keys\n\n3. Query with jq: `jq '.specs' .jkspec/source.json`\n\nFor AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`."
+              "content_draft": "1. Clone jkspec into your project (without git history):\n   ```bash\n   npx degit jkf16m/jkspec .jkspec\n   ```\n\n2. The `.jkspec/source.json` file is your starting template - customize it:\n   - Update the `project` section with your project details\n   - **NEVER remove `__jkspec`** - it defines the jkspec framework itself\n   - Modifying `__jkspec` means modifying the framework (jkspec is self-modifiable by design)\n   - Add your own specs to the `specs` object using kebab-case keys\n\n3. Query with jq: `jq '.specs' .jkspec/source.json`\n\nFor AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`."
             },
             "core_concepts": {
               "description": "Brief explanation of core jkspec concepts",
@@ -592,7 +592,7 @@
                 },
                 {
                   "name": "Internal Specs",
-                  "description": "Specs prefixed with `__` are internal/meta specs (like `__jkspec` itself)"
+                  "description": "Specs prefixed with `__` are internal/meta specs that define the framework itself (like `__jkspec`). These specs should never be deleted. Modifying them means modifying the jkspec framework behavior - the framework is intentionally self-modifiable"
                 },
                 {
                   "name": "jq Queries",
@@ -713,7 +713,7 @@
       "first_command": "jq '.worker' .jkspec/source.json",
       "description": "On initialization, agent must read the worker object which contains all operational definitions"
     },
-    "commands_location": ".opencode/commands",
+    "commands_location": ".opencode/command",
     "commands_description": "All jkspec-worker commands are defined as individual markdown files in .opencode/commands/ directory. Each command file contains description, steps, and additional context.",
     "available_commands": [
       "jkspec-extend",
