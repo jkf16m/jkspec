@@ -165,7 +165,8 @@
       "dependencies": [
         "jspec-cli"
       ],
-      "tool_resolution": "dynamic"
+      "tool_resolution": "dynamic",
+      "reading_policy": "MANDATORY: Always use jspec-cli tool for reading specs. Use '.jspec/cli/jspec.sh get <spec-id>' instead of jq queries. This ensures consistent access patterns and proper tool usage."
     },
     "jspec-internal-tests": {
       "type": "experiment",
