@@ -42,29 +42,43 @@
         "context": "Need to distinguish internal jkspec infrastructure from user specs",
         "decision": "Prefix internal/meta specs with __ (double underscore) to clearly mark them as part of jkspec itself",
         "consequences": "Users can easily identify and avoid modifying internal specs. Clear separation of concerns between framework and user content."
+      },
+      {
+        "id": "ADR-004",
+        "title": "Remove CLI abstraction, use jq directly",
+        "status": "accepted",
+        "date": "2025-12-25",
+        "context": "CLI tool adds complexity and maintenance burden. AI agents are fluent in jq. Direct manipulation is more transparent.",
+        "decision": "Remove jkspec CLI tool. Use jq directly for all read/write operations on .jkspec/source.json",
+        "consequences": "Simpler architecture with fewer moving parts. Agent can see exact jq commands. Users learn standard jq instead of custom CLI. Slightly more verbose operations but more transparent and flexible."
       }
     ]
   },
   "specs": {
     "__jkspec": {
-      "type": "meta",
-      "description": "Internal jkspec system specification - contains all jkspec infrastructure components",
-      "status": "active",
-      "tags": [
-        "internal",
-        "meta",
-        "jkspec-system"
-      ],
-      "note": "This is an internal spec. User specs should not use the __ prefix.",
+      "__meta": {
+        "type": "meta",
+        "description": "Internal jkspec system specification - contains all jkspec infrastructure components",
+        "status": "active",
+        "tags": [
+          "internal",
+          "meta",
+          "jkspec-system"
+        ],
+        "note": "This is an internal spec. User specs should not use the __ prefix."
+      },
       "components": {
         "format": {
-          "type": "specification",
-          "description": "The jkspec format itself - structure and conventions",
-          "status": "active",
-          "tags": [
-            "meta",
-            "format"
-          ],
+          "__meta": {
+            "type": "specification",
+            "description": "The jkspec format itself - structure and conventions",
+            "status": "active",
+            "tags": [
+              "meta",
+              "format"
+            ],
+            "location": ".jkspec/source.json"
+          },
           "structure": {
             "project": {
               "name": "string - project name",
@@ -77,22 +91,25 @@
             "specs": {
               "description": "object - keyed by unique spec identifier",
               "spec_schema": {
-                "type": "string - spec type (api, model, component, etc.)",
-                "description": "string - what this spec describes",
-                "status": "string - draft, active, deprecated",
-                "tags": "array - searchable tags",
+                "__meta": {
+                  "type": "string - spec type (api, model, component, etc.)",
+                  "description": "string - what this spec describes",
+                  "status": "string - draft, active, deprecated",
+                  "tags": "array - searchable tags"
+                },
                 "...": "any additional fields relevant to the spec"
               }
             }
           },
           "examples": {
-            "get_project_info": "jq '.project' .jkspec/source.json",
-            "list_all_specs": "jq '.specs | keys' .jkspec/source.json",
-            "get_specific_spec": "jq '.specs[\"spec-name\"]' .jkspec/source.json",
-            "filter_by_type": "jq '.specs | to_entries[] | select(.value.type==\"api\")' .jkspec/source.json",
-            "filter_by_tag": "jq '.specs | to_entries[] | select(.value.tags[]? == \"authentication\")' .jkspec/source.json"
+            "get_project_info": "jq \".project\" .jkspec/source.json",
+            "list_all_specs": "jq \".specs | keys\" .jkspec/source.json",
+            "get_specific_spec": "jq \".specs[\\\"spec-name\\\"]\" .jkspec/source.json",
+            "get_spec_meta": "jq \".specs[\\\"spec-name\\\"].__meta\" .jkspec/source.json",
+            "filter_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type==\\\"api\\\")\" .jkspec/source.json",
+            "filter_by_tag": "jq \".specs | to_entries[] | select(.value.__meta.tags[]? == \\\"authentication\\\")\" .jkspec/source.json",
+            "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json"
           },
-          "location": ".jkspec/source.json",
           "hierarchical_specifications": {
             "description": "Specs can contain nested child specifications at any depth using arbitrary keys",
             "common_keys": [
@@ -117,56 +134,72 @@
               "child_key": "components",
               "children": {
                 "format": {
-                  "type": "specification",
-                  "description": "The jkspec format specification",
-                  "status": "active"
+                  "__meta": {
+                    "type": "specification",
+                    "description": "The jkspec format specification",
+                    "status": "active"
+                  }
                 }
               }
             },
             "deep_nesting": {
-              "description": "Specs can nest arbitrarily deep",
-              "example": "auth-api > endpoints > login > validations > email-format"
+              "description": "Specs can nest arbitrarily deep with each level having its own __meta",
+              "example": "auth-api > endpoints > login > validations > email-format",
+              "structure": {
+                "auth-api": {
+                  "__meta": {
+                    "type": "api",
+                    "description": "Authentication API",
+                    "status": "active"
+                  },
+                  "endpoints": {
+                    "login": {
+                      "__meta": {
+                        "type": "endpoint",
+                        "description": "Login endpoint",
+                        "status": "active"
+                      },
+                      "validations": {
+                        "email-format": {
+                          "__meta": {
+                            "type": "validation",
+                            "description": "Email format validation",
+                            "status": "active"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
-          "cli_commands_for_nesting": {
-            "add_child": "./jkspec add-child <parent-id> <child-key> <child-id> <type> <description> [tags...]",
-            "update_child": "./jkspec update-child <parent-id> <child-key> <child-id> <field> <value>",
-            "get_child": "./jkspec get-child <parent-id> <child-key> <child-id>"
+          "jq_editing_examples": {
+            "add_new_spec": "jq \".specs[\\\"new-spec-id\\\"] = {__meta: {type: \\\"component\\\", description: \\\"New component\\\", status: \\\"draft\\\", tags: [\\\"frontend\\\"]}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "update_meta_field": "jq \".specs[\\\"spec-id\\\"].__meta.status = \\\"active\\\"\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "remove_spec": "jq \"del(.specs[\\\"spec-id\\\"])\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "add_nested_child": "jq \".specs[\\\"parent-id\\\"].children[\\\"child-id\\\"] = {__meta: {type: \\\"subcomponent\\\", description: \\\"Child spec\\\", status: \\\"draft\\\"}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "update_nested_meta": "jq \".specs[\\\"parent-id\\\"].children[\\\"child-id\\\"].__meta.status = \\\"active\\\"\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "add_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags += [\\\"new-tag\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "remove_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags -= [\\\"old-tag\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "add_task": "jq \".specs[\\\"spec-id\\\"].tasks += [{name: \\\"Task name\\\", description: \\\"Task description\\\", done: false}]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "mark_task_done": "jq \".specs[\\\"spec-id\\\"].tasks[0].done = true\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "add_data_field": "jq \".specs[\\\"spec-id\\\"].custom_data = {key: \\\"value\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
           }
         },
-        "cli": {
-          "type": "tool",
-          "description": "Bash CLI tool for managing .jkspec/source.json files",
-          "status": "active",
-          "tags": [
-            "cli",
-            "tooling",
-            "bash"
-          ],
-          "location": ".jkspec/cli/jkspec.sh",
-          "dependencies": [
-            "jq"
-          ],
-          "commands": {
-            "init": "Initialize a new jkspec project",
-            "add-spec": "Add a new spec with ID, type, description, and tags",
-            "update-spec": "Update a field in an existing spec",
-            "remove-spec": "Remove a spec by ID",
-            "list": "List all spec IDs",
-            "get": "Get a specific spec by ID",
-            "help": "Show usage information"
-          },
-          "purpose": "Provide a human-friendly CLI interface for creating and managing jkspec files without manual JSON editing"
-        },
         "depth-system": {
-          "type": "feature",
-          "description": "Single unified agent architecture where jkspec-worker handles all operations from high-level management to detailed implementation",
-          "status": "active",
-          "tags": [
-            "architecture",
-            "unified-agent"
-          ],
-          "purpose": "Simplified architecture with one agent that can handle any jkspec task",
+          "__meta": {
+            "type": "feature",
+            "description": "Single unified agent architecture where jkspec-worker handles all operations from high-level management to detailed implementation",
+            "status": "active",
+            "tags": [
+              "architecture",
+              "unified-agent"
+            ],
+            "purpose": "Simplified architecture with one agent that can handle any jkspec task",
+            "location": ".opencode/agent/"
+          },
           "concepts": {
             "spec_levels": {
               "simple": "Single file, small component, or focused investigation",
@@ -178,21 +211,26 @@
           "agent_responsibilities": {
             "jkspec-worker": "Handles ALL operations: extends specs, validates structure, analyzes codebase, implements features, explains specs, and verifies implementations"
           },
-          "location": ".opencode/agent/",
           "implemented_in": [
             ".opencode/agent/jkspec-worker.md"
           ]
         },
         "worker": {
-          "type": "agent",
-          "description": "Unified agent for managing and implementing jkspec specifications - handles both high-level management operations and detailed implementation work",
-          "status": "active",
-          "tags": [
-            "ai-agents",
-            "management",
-            "implementation"
-          ],
-          "purpose": "Single agent that can extend, validate, maintain jkspec files AND read/implement individual specs",
+          "__meta": {
+            "type": "agent",
+            "description": "Unified agent for managing and implementing jkspec specifications - handles both high-level management operations and detailed implementation work",
+            "status": "active",
+            "tags": [
+              "ai-agents",
+              "management",
+              "implementation"
+            ],
+            "purpose": "Single agent that can extend, validate, maintain jkspec files AND read/implement individual specs using jq directly",
+            "location": ".opencode/agent/jkspec-worker.md",
+            "dependencies": [
+              "jq"
+            ]
+          },
           "capabilities": {
             "management": [
               "Add new specs (extend command)",
@@ -220,38 +258,68 @@
             "explain": "Read and explain a specific spec's details",
             "verify": "Verify if a spec is implemented correctly"
           },
-          "location": ".opencode/agent/jkspec-worker.md",
-          "dependencies": [
-            "jkspec-cli"
-          ],
-          "tool_resolution": "dynamic",
-          "reading_policy": "MANDATORY: Always use jkspec-cli tool for reading specs. Use '.jkspec/cli/jkspec.sh get <spec-id>' instead of jq queries. This ensures consistent access patterns and proper tool usage."
-        },
-        "template": {
-          "type": "template",
-          "description": "Starter template for new jkspec projects",
-          "status": "active",
-          "tags": [
-            "template",
-            "setup"
-          ],
-          "location": "jkspec-template/",
-          "contents": {
-            "source_json": ".jkspec/source.json with minimal project structure",
-            "jkspec_symlink": "Symlink to parent jkspec CLI tool"
+          "jq_operations": {
+            "reading": {
+              "get_spec": "jq \".specs[\\\"spec-id\\\"]\" .jkspec/source.json",
+              "get_spec_meta": "jq \".specs[\\\"spec-id\\\"].__meta\" .jkspec/source.json",
+              "get_nested_spec": "jq \".specs[\\\"parent-id\\\"].children[\\\"child-id\\\"]\" .jkspec/source.json",
+              "get_nested_meta": "jq \".specs[\\\"parent-id\\\"].children[\\\"child-id\\\"].__meta\" .jkspec/source.json",
+              "list_all_specs": "jq \".specs | keys\" .jkspec/source.json",
+              "list_specs_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type == \\\"api\\\") | .key\" .jkspec/source.json",
+              "list_specs_by_tag": "jq \".specs | to_entries[] | select(.value.__meta.tags[]? == \\\"backend\\\") | .key\" .jkspec/source.json",
+              "get_all_draft_specs": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json",
+              "get_project_info": "jq \".project\" .jkspec/source.json"
+            },
+            "writing": {
+              "add_spec": "jq \".specs[\\\"new-spec\\\"] = {__meta: {type: \\\"component\\\", description: \\\"Description\\\", status: \\\"draft\\\", tags: []}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "update_meta_field": "jq \".specs[\\\"spec-id\\\"].__meta.status = \\\"active\\\"\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "add_data_field": "jq \".specs[\\\"spec-id\\\"].new_field = \\\"value\\\"\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "add_nested_spec": "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"] = {__meta: {type: \\\"type\\\", description: \\\"desc\\\", status: \\\"draft\\\"}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "add_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags += [\\\"new-tag\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+            },
+            "deleting": {
+              "remove_spec": "jq \"del(.specs[\\\"spec-id\\\"])\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "remove_nested": "jq \"del(.specs[\\\"parent\\\"].children[\\\"child\\\"])\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "remove_data_field": "jq \"del(.specs[\\\"spec-id\\\"].field_name)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "remove_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags -= [\\\"tag-to-remove\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "remove_meta_field": "jq \"del(.specs[\\\"spec-id\\\"].__meta.field_name)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+            },
+            "advanced": {
+              "conditional_update": "jq \".specs |= with_entries(if .value.__meta.status == \\\"draft\\\" then .value.__meta.status = \\\"reviewed\\\" else . end)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "bulk_add_meta_field": "jq \".specs |= with_entries(.value.__meta.updated = \\\"2025-12-25\\\")\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "deep_merge_data": "jq \".specs[\\\"spec-id\\\"] |= . * {new_field: \\\"value\\\", nested: {key: \\\"val\\\"}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "filter_and_rebuild": "jq \".specs |= with_entries(select(.value.__meta.status != \\\"deprecated\\\"))\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+            }
           }
         },
-
+        "template": {
+          "__meta": {
+            "type": "template",
+            "description": "Starter template for new jkspec projects",
+            "status": "active",
+            "tags": [
+              "template",
+              "setup"
+            ],
+            "location": "jkspec-template/"
+          },
+          "contents": {
+            "source_json": ".jkspec/source.json with minimal project structure"
+          }
+        },
         "traceability": {
-          "type": "meta-guideline",
-          "description": "Guideline for creating traceable specs with implementation status tracking using task arrays",
-          "status": "active",
-          "tags": [
-            "meta",
-            "guideline",
-            "traceability"
-          ],
-          "purpose": "Define a standardized pattern for tracking implementation tasks within specs to ensure clear traceability between specification and actual code",
+          "__meta": {
+            "type": "meta-guideline",
+            "description": "Guideline for creating traceable specs with implementation status tracking using task arrays",
+            "status": "active",
+            "tags": [
+              "meta",
+              "guideline",
+              "traceability"
+            ],
+            "purpose": "Define a standardized pattern for tracking implementation tasks within specs to ensure clear traceability between specification and actual code"
+          },
           "concept": "When creating code-related specs, include a tasks array where each element is a task object containing name, description, and done status",
           "pattern": {
             "tasks": {
@@ -267,9 +335,11 @@
           "when_to_use": "Propose this pattern when user creates specs that involve code implementation (files, components, APIs, features, etc.)",
           "example_spec": {
             "example-api": {
-              "type": "api",
-              "description": "Example REST API endpoint",
-              "status": "draft",
+              "__meta": {
+                "type": "api",
+                "description": "Example REST API endpoint",
+                "status": "draft"
+              },
               "tasks": [
                 {
                   "name": "Create handler",
@@ -312,8 +382,7 @@
   "worker": {
     "bootstrap": {
       "first_command": "jq '.worker' .jkspec/source.json",
-      "description": "On initialization, agent must read the worker object which contains all operational definitions",
-      "cli_fetch": "JKSPEC_CLI=$(jq -r '.specs[\"__jkspec\"].components.cli.location' .jkspec/source.json)"
+      "description": "On initialization, agent must read the worker object which contains all operational definitions"
     },
     "commands_location": ".opencode/commands",
     "commands_description": "All jkspec-worker commands are defined as individual markdown files in .opencode/commands/ directory. Each command file contains description, steps, and additional context.",
@@ -329,31 +398,28 @@
       "jkspec-verify"
     ],
     "reading_policy": {
-      "cli_mandatory": true,
-      "bootstrap_exceptions": [
-        "Fetching CLI location from specs",
-        "Reading worker object itself",
-        "Reading project metadata"
-      ],
-      "allowed_direct_queries": [
-        "jq -r '.specs[\"__jkspec\"].components.cli.location' .jkspec/source.json",
-        "jq '.worker' .jkspec/source.json",
-        "jq '.project' .jkspec/source.json"
-      ],
-      "mandatory_cli_usage": [
-        "$JKSPEC_CLI get <spec-id> - for reading any spec",
-        "$JKSPEC_CLI list - for listing all spec IDs",
-        "$JKSPEC_CLI add-spec - for adding specs",
-        "$JKSPEC_CLI update-spec - for updating specs",
-        "$JKSPEC_CLI remove-spec - for removing specs"
-      ],
-      "rationale": "Ensures consistent access patterns, proper tool usage validation, and single source of truth for spec retrieval"
+      "description": "Use jq directly to read and manipulate .jkspec/source.json",
+      "philosophy": "Direct JSON manipulation with jq is simpler and more transparent than abstracting behind a CLI tool",
+      "common_operations": {
+        "read_spec": "jq \".specs[\\\"spec-id\\\"]\" .jkspec/source.json",
+        "read_spec_meta": "jq \".specs[\\\"spec-id\\\"].__meta\" .jkspec/source.json",
+        "list_specs": "jq \".specs | keys\" .jkspec/source.json",
+        "get_worker_config": "jq \".worker\" .jkspec/source.json",
+        "get_project_info": "jq \".project\" .jkspec/source.json",
+        "filter_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type == \\\"api\\\")\" .jkspec/source.json",
+        "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json"
+      },
+      "best_practices": [
+        "Always use tmp.json pattern when modifying: jq '...' file.json > tmp.json && mv tmp.json file.json",
+        "Validate JSON after modifications with: jq empty .jkspec/source.json",
+        "Use --arg for passing variables to avoid shell escaping issues",
+        "Use -r flag for raw output when you need unquoted strings",
+        "Test complex jq queries with read-only operations first"
+      ]
     },
     "guidelines": [
       "Always validate input - check spec-id naming conventions and required fields",
-      "Fetch tool locations dynamically from source.json",
-      "Use jkspec CLI for all spec modifications",
-      "Use CLI for reading specs (except bootstrap cases)",
+      "Use jq for all spec reading and modifications",
       "Be concise and provide clear, actionable output",
       "Show results after operations",
       "Handle errors gracefully with explanations",
