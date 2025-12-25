@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jkspec.org/schema/v1",
+  "title": "jkspec Schema",
+  "description": "JSON Schema for jkspec format with recursive spec definitions using __meta",
+  "type": "object",
+  "required": ["project", "specs"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "description": "Project-level metadata and configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief project description"
+        },
+        "version": {
+          "type": "string",
+          "description": "Project version (semver)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+.*$"
+        },
+        "architecture": {
+          "type": "object",
+          "description": "Architectural overview"
+        },
+        "conventions": {
+          "type": "object",
+          "description": "Global coding and organizational conventions"
+        },
+        "decisions": {
+          "type": "array",
+          "description": "Architectural decision records",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "specs": {
+      "type": "object",
+      "description": "Collection of specifications keyed by unique spec identifier",
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "$ref": "#/$defs/spec"
+        }
+      },
+      "additionalProperties": false
+    },
+    "worker": {
+      "type": "object",
+      "description": "Worker agent configuration (internal use)"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "spec": {
+      "type": "object",
+      "description": "A specification - any object with __meta is considered a spec and can contain nested specs",
+      "required": ["__meta"],
+      "properties": {
+        "__meta": {
+          "type": "object",
+          "description": "Metadata that identifies this as a spec and provides agent instructions",
+          "required": ["type", "description", "status"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Spec type (api, model, component, feature, meta, etc.)",
+              "examples": ["api", "component", "feature", "model", "service", "meta", "agent"]
+            },
+            "description": {
+              "type": "string",
+              "description": "Clear description of what this spec describes"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["draft", "active", "deprecated"],
+              "description": "Implementation status: draft (not implemented), active (implemented and working), deprecated (no longer in use)"
+            },
+            "tags": {
+              "type": "array",
+              "description": "Searchable tags for categorization",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "pre_actions": {
+              "type": "array",
+              "description": "Actions the agent should take before working on this spec",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "investigate_web",
+                  "prepare_directory",
+                  "create_subagent",
+                  "analyze_dependencies",
+                  "analyze_codebase",
+                  "read_documentation",
+                  "validate_prerequisites"
+                ]
+              }
+            },
+            "agent_hints": {
+              "type": "object",
+              "description": "Additional instructions for specialized agent handling",
+              "properties": {
+                "delegation": {
+                  "type": "object",
+                  "description": "Instructions for delegating this spec to a subagent",
+                  "properties": {
+                    "agent_type": {
+                      "type": "string",
+                      "description": "Type of subagent to create"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "description": "Why this spec should be delegated"
+                    },
+                    "context": {
+                      "type": "object",
+                      "description": "Additional context to provide to the subagent"
+                    }
+                  }
+                },
+                "complexity": {
+                  "type": "string",
+                  "enum": ["simple", "medium", "complex"],
+                  "description": "Complexity level hint for the agent"
+                },
+                "estimated_effort": {
+                  "type": "string",
+                  "description": "Estimated effort (e.g., '2 hours', '1 day', '1 week')"
+                }
+              }
+            },
+            "location": {
+              "type": "string",
+              "description": "File path or location where this spec is implemented"
+            },
+            "dependencies": {
+              "type": "array",
+              "description": "List of dependencies (spec IDs, packages, etc.)",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "tasks": {
+          "type": "array",
+          "description": "Implementation tasks for traceability",
+          "items": {
+            "type": "object",
+            "required": ["name", "description", "done"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Short task name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Detailed description of what needs to be done"
+              },
+              "done": {
+                "type": "boolean",
+                "description": "Whether this task is completed"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "patternProperties": {
+        "^(?!__meta$|tasks$).*": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/spec",
+              "description": "Nested spec (must have __meta)"
+            },
+            {
+              "type": ["string", "number", "boolean", "null"],
+              "description": "Primitive value"
+            },
+            {
+              "type": "array",
+              "description": "Array of values or specs"
+            },
+            {
+              "type": "object",
+              "description": "Object (not a spec - no __meta)"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
