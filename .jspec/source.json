@@ -262,6 +262,70 @@
               "location": ".jspec/tests/tictactoe/"
             }
           }
+        },
+        "traceability": {
+          "type": "meta-guideline",
+          "description": "Guideline for creating traceable specs with implementation status tracking using task arrays",
+          "status": "active",
+          "tags": [
+            "meta",
+            "guideline",
+            "traceability"
+          ],
+          "purpose": "Define a standardized pattern for tracking implementation tasks within specs to ensure clear traceability between specification and actual code",
+          "concept": "When creating code-related specs, include a tasks array where each element is a task object containing name, description, and done status",
+          "pattern": {
+            "tasks": {
+              "description": "Array of task objects",
+              "task_structure": {
+                "name": "string - Short name for the task",
+                "description": "string - Detailed description of what needs to be done",
+                "done": "boolean - false when not implemented, true when implemented"
+              }
+            }
+          },
+          "rationale": "Provides granular tracking of implementation progress with self-documenting task objects, enables clear verification of spec completion, maintains natural ordering, and keeps traceability between requirements and code",
+          "when_to_use": "Propose this pattern when user creates specs that involve code implementation (files, components, APIs, features, etc.)",
+          "example_spec": {
+            "example-api": {
+              "type": "api",
+              "description": "Example REST API endpoint",
+              "status": "draft",
+              "tasks": [
+                {
+                  "name": "Create handler",
+                  "description": "Create endpoint handler function",
+                  "done": false
+                },
+                {
+                  "name": "Add validation",
+                  "description": "Add input validation for request parameters",
+                  "done": false
+                },
+                {
+                  "name": "Write tests",
+                  "description": "Write unit tests for the endpoint",
+                  "done": false
+                }
+              ]
+            }
+          },
+          "best_practices": [
+            "Order tasks in logical sequence (implementation order)",
+            "Use concise but clear names for tasks",
+            "Provide detailed descriptions explaining what each task involves",
+            "Set all task.done to false initially when spec is created",
+            "Update task.done to true as each component is implemented",
+            "Consider updating overall spec status to active when all tasks are done"
+          ],
+          "advantages": [
+            "Natural ordering - tasks appear in implementation sequence",
+            "Easy to iterate - can use array methods and jq array operations",
+            "Simple indexing - access by position (tasks[0], tasks[1], etc.)",
+            "Clean structure - no need for numbered keys",
+            "Easy to add/remove tasks without renumbering"
+          ],
+          "agent_behavior": "When user requests to create a spec related to code, suggest including the tasks array pattern and offer to add task objects based on the spec requirements"
         }
       }
     }
