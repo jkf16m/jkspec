@@ -1,4 +1,4 @@
-# jspec-implement
+# jkspec-implement
 
 Implement a spec according to its requirements.
 
@@ -6,7 +6,7 @@ Implement a spec according to its requirements.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Read the spec:

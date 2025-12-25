@@ -1,4 +1,4 @@
-# jspec-verify
+# jkspec-verify
 
 Verify if a spec is implemented correctly.
 
@@ -6,7 +6,7 @@ Verify if a spec is implemented correctly.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Read spec requirements:

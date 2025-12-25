@@ -1,4 +1,4 @@
-# jspec-suggest-specs
+# jkspec-suggest-specs
 
 Suggest missing specs based on codebase analysis.
 
@@ -6,7 +6,7 @@ Suggest missing specs based on codebase analysis.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Get existing spec IDs:

@@ -9,36 +9,36 @@
     },
     "conventions": {
       "spec_keys": "Use kebab-case for spec identifiers (e.g., 'auth-service', 'user-model')",
-      "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jspec')"
+      "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jkspec')"
     }
   },
   "specs": {
-    "__jspec": {
+    "__jkspec": {
       "type": "meta",
-      "description": "Internal jspec system specification - contains all jspec infrastructure components",
+      "description": "Internal jkspec system specification - contains all jkspec infrastructure components",
       "status": "active",
       "tags": [
         "internal",
         "meta",
-        "jspec-system"
+        "jkspec-system"
       ],
       "note": "This is an internal spec. User specs should not use the __ prefix.",
       "components": {
         "cli": {
           "type": "tool",
-          "description": "Bash CLI tool for managing .jspec/source.json files",
+          "description": "Bash CLI tool for managing .jkspec/source.json files",
           "status": "active",
           "tags": [
             "cli",
             "tooling",
             "bash"
           ],
-          "location": "./jspec",
+          "location": "./jkspec",
           "dependencies": [
             "jq"
           ],
           "commands": {
-            "init": "Initialize a new jspec project",
+            "init": "Initialize a new jkspec project",
             "add-spec": "Add a new spec with ID, type, description, and tags",
             "update-spec": "Update a field in an existing spec",
             "remove-spec": "Remove a spec by ID",
@@ -49,7 +49,7 @@
         },
         "format": {
           "type": "specification",
-          "description": "The jspec format itself - structure and conventions",
+          "description": "The jkspec format itself - structure and conventions",
           "status": "active",
           "tags": [
             "meta",
@@ -76,14 +76,14 @@
             }
           },
           "examples": {
-            "get_project_info": "jq '.project' .jspec/source.json",
-            "list_all_specs": "jq '.specs | keys' .jspec/source.json",
-            "get_specific_spec": "jq '.specs[\"spec-name\"]' .jspec/source.json"
+            "get_project_info": "jq '.project' .jkspec/source.json",
+            "list_all_specs": "jq '.specs | keys' .jkspec/source.json",
+            "get_specific_spec": "jq '.specs[\"spec-name\"]' .jkspec/source.json"
           }
         },
         "worker": {
           "type": "agent",
-          "description": "Unified agent for managing and implementing jspec specifications",
+          "description": "Unified agent for managing and implementing jkspec specifications",
           "status": "active",
           "tags": [
             "ai-agents",
@@ -94,7 +94,7 @@
             "management": [
               "Add new specs (extend command)",
               "Update existing specs (update command)",
-              "Validate jspec structure (validate command)",
+              "Validate jkspec structure (validate command)",
               "Analyze specs and provide recommendations (analyze command)"
             ],
             "implementation": [
@@ -103,7 +103,7 @@
               "Verify implementations match specs (verify command)"
             ]
           },
-          "location": ".opencode/agent/jspec-worker.md"
+          "location": ".opencode/agent/jkspec-worker.md"
         }
       }
     }

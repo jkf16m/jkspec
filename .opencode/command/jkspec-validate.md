@@ -1,12 +1,12 @@
-# jspec-validate
+# jkspec-validate
 
-Validate the jspec structure and check for inconsistencies.
+Validate the jkspec structure and check for inconsistencies.
 
 ## Steps
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Get all spec IDs:
@@ -16,7 +16,7 @@ Validate the jspec structure and check for inconsistencies.
 
 3. Check required project fields exist (use jq for project metadata):
    ```bash
-   jq '.project' .jspec/source.json
+   jq '.project' .jkspec/source.json
    ```
 
 4. For each spec, validate required fields:

@@ -1,12 +1,12 @@
-# jspec-extend
+# jkspec-extend
 
-Add a new spec to the jspec file.
+Add a new spec to the jkspec file.
 
 ## Steps
 
 1. Fetch CLI location using bootstrap pattern:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Validate the spec-id follows kebab-case convention

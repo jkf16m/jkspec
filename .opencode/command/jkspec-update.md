@@ -1,4 +1,4 @@
-# jspec-update
+# jkspec-update
 
 Update an existing spec field.
 
@@ -6,7 +6,7 @@ Update an existing spec field.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Verify the spec exists:

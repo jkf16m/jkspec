@@ -1,4 +1,4 @@
-# jspec-explain
+# jkspec-explain
 
 Read and explain a specific spec's details.
 
@@ -6,7 +6,7 @@ Read and explain a specific spec's details.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Read the spec:

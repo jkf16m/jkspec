@@ -1,4 +1,4 @@
-# jspec-test-sync
+# jkspec-test-sync
 
 Verify that all specs are actually implemented in the codebase.
 
@@ -6,7 +6,7 @@ Verify that all specs are actually implemented in the codebase.
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Get all spec IDs:

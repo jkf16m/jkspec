@@ -1,12 +1,12 @@
-# jspec-sync
+# jkspec-sync
 
-Ensure jspec is in sync with actual codebase structure.
+Ensure jkspec is in sync with actual codebase structure.
 
 ## Steps
 
 1. Fetch CLI location:
    ```bash
-   JSPEC_CLI=$(jq -r '.specs["jspec-cli"].location' .jspec/source.json)
+   JSPEC_CLI=$(jq -r '.specs["jkspec-cli"].location' .jkspec/source.json)
    ```
 
 2. Get all spec IDs:

@@ -1,18 +1,18 @@
-# jspec-worker Agent
+# jkspec-worker Agent
 
 ## Bootstrap Instructions
 
 **FIRST COMMAND YOU MUST RUN:**
 
 ```bash
-jq '.worker' .jspec/source.json
+jq '.worker' .jkspec/source.json
 ```
 
-All your operational definitions, guidelines, and behaviors are defined in the `worker` object within `.jspec/source.json`. You MUST read this object before performing any operations.
+All your operational definitions, guidelines, and behaviors are defined in the `worker` object within `.jkspec/source.json`. You MUST read this object before performing any operations.
 
 ## What the Worker Object Contains
 
-The `worker` object in `.jspec/source.json` is the **single source of truth** for all jspec-worker agent behavior. It contains:
+The `worker` object in `.jkspec/source.json` is the **single source of truth** for all jkspec-worker agent behavior. It contains:
 
 ### `worker.bootstrap`
 - **`first_command`**: The exact command to run on initialization
@@ -43,7 +43,7 @@ Array of operational guidelines you must follow.
 
 ## Your Workflow
 
-1. **On initialization**: Run `jq '.worker' .jspec/source.json`
+1. **On initialization**: Run `jq '.worker' .jkspec/source.json`
 2. **Read the worker object**: Understand all configuration, policies, and guidelines
 3. **Access commands**: Read command files from `.opencode/commands/` as needed
 4. **Execute commands**: Follow the steps defined in each command's markdown file
@@ -54,16 +54,16 @@ Array of operational guidelines you must follow.
 
 All commands are defined in `.opencode/commands/` directory as individual markdown files:
 
-- `jspec-extend.md` - Add new specs
-- `jspec-update.md` - Update existing specs
-- `jspec-validate.md` - Validate jspec structure
-- `jspec-analyze.md` - Analyze and provide recommendations
-- `jspec-suggest-specs.md` - Suggest missing specs
-- `jspec-sync.md` - Sync specs with codebase
-- `jspec-test-sync.md` - Verify implementations exist
-- `jspec-implement.md` - Implement a spec
-- `jspec-explain.md` - Explain a spec's details
-- `jspec-verify.md` - Verify implementation correctness
+- `jkspec-extend.md` - Add new specs
+- `jkspec-update.md` - Update existing specs
+- `jkspec-validate.md` - Validate jkspec structure
+- `jkspec-analyze.md` - Analyze and provide recommendations
+- `jkspec-suggest-specs.md` - Suggest missing specs
+- `jkspec-sync.md` - Sync specs with codebase
+- `jkspec-test-sync.md` - Verify implementations exist
+- `jkspec-implement.md` - Implement a spec
+- `jkspec-explain.md` - Explain a spec's details
+- `jkspec-verify.md` - Verify implementation correctness
 
 Each command file contains:
 - Description of what the command does
@@ -82,10 +82,10 @@ This design ensures:
 
 ## Example: How to Execute a Command
 
-When a user runs `/jspec-worker explain jspec-format`:
+When a user runs `/jkspec-worker explain jkspec-format`:
 
 1. You've already read `worker` object during bootstrap
-2. Look up command location: `.opencode/commands/jspec-explain.md`
+2. Look up command location: `.opencode/commands/jkspec-explain.md`
 3. Read the command file
 4. Execute each step in order
 5. Follow the additional context and guidelines
