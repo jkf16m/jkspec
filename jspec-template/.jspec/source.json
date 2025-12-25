@@ -1,111 +1,111 @@
 {
   "project": {
-    "name": "jspec",
-    "description": "JSON-based specification format for rapid AI agent context retrieval",
+    "name": "your-project-name",
+    "description": "Brief description of your project",
     "version": "0.1.0",
     "architecture": {
-      "style": "single-file specification",
-      "pattern": "spec-driven development",
-      "philosophy": "Provide AI agents with structured, queryable context to eliminate codebase exploration overhead"
+      "style": "your-architecture-style",
+      "pattern": "your-patterns"
     },
     "conventions": {
-      "spec_location": ".jspec/source.json",
-      "query_tool": "jq",
       "spec_keys": "Use kebab-case for spec identifiers (e.g., 'auth-service', 'user-model')",
-      "versioning": "Semantic versioning for the spec format itself"
-    },
-    "decisions": [
-      {
-        "id": "ADR-001",
-        "title": "Use single JSON file as source of truth",
-        "status": "accepted",
-        "date": "2025-12-25",
-        "context": "AI agents waste time exploring codebases. Need fast, precise context retrieval.",
-        "decision": "Use single .jspec/source.json file with structured data, queryable via jq",
-        "consequences": "Agents get instant context. Must maintain spec alongside code. JSON parsing overhead minimal."
-      },
-      {
-        "id": "ADR-002",
-        "title": "Use object for specs instead of array",
-        "status": "accepted",
-        "date": "2025-12-25",
-        "context": "Need to avoid duplicate keys and enable direct access",
-        "decision": "Use object with unique keys for specs: {\"spec-name\": {...}}",
-        "consequences": "Direct access via jq '.specs[\"name\"]'. Natural key uniqueness. Slightly more verbose queries for filtering."
-      }
-    ]
+      "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jspec')"
+    }
   },
   "specs": {
-    "jspec-format": {
-      "type": "specification",
-      "description": "The jspec format itself - structure and conventions",
-      "status": "draft",
-      "tags": [
-        "meta",
-        "format"
-      ],
-      "structure": {
-        "project": {
-          "name": "string - project name",
-          "description": "string - brief project description",
-          "version": "string - semver",
-          "architecture": "object - architectural overview",
-          "conventions": "object - global coding and organizational conventions",
-          "decisions": "array - architectural decision records"
-        },
-        "specs": {
-          "description": "object - keyed by unique spec identifier",
-          "spec_schema": {
-            "type": "string - spec type (api, model, component, etc.)",
-            "description": "string - what this spec describes",
-            "status": "string - draft, active, deprecated",
-            "tags": "array - searchable tags",
-            "...": "any additional fields relevant to the spec"
-          }
-        }
-      },
-      "examples": {
-        "get_project_info": "jq '.project' .jspec/source.json",
-        "list_all_specs": "jq '.specs | keys' .jspec/source.json",
-        "get_specific_spec": "jq '.specs[\"spec-name\"]' .jspec/source.json",
-        "filter_by_type": "jq '.specs | to_entries[] | select(.value.type==\"api\")' .jspec/source.json",
-        "filter_by_tag": "jq '.specs | to_entries[] | select(.value.tags[]? == \"authentication\")' .jspec/source.json"
-      }
-    },
-    "jspec-orchestrator": {
-      "type": "agent",
-      "description": "AI agent specialized in managing and maintaining .jspec/source.json files",
-      "status": "draft",
-      "tags": [
-        "ai-agents",
-        "orchestrator",
-        "tooling"
-      ],
-      "purpose": "Help users extend, validate, and maintain their jspec specifications efficiently",
-      "commands": "[\"extend\",\"update\",\"validate\",\"analyze\",\"suggest-specs\",\"sync\"]",
-      "location": "AGENTS.md"
-    },
-    "jspec-cli": {
-      "type": "tool",
-      "description": "Bash CLI tool for managing .jspec/source.json files",
+    "__jspec": {
+      "type": "meta",
+      "description": "Internal jspec system specification - contains all jspec infrastructure components",
       "status": "active",
       "tags": [
-        "cli",
-        "tooling",
-        "bash"
+        "internal",
+        "meta",
+        "jspec-system"
       ],
-      "location": "./jspec",
-      "dependencies": ["jq"],
-      "commands": {
-        "init": "Initialize a new jspec project",
-        "add-spec": "Add a new spec with ID, type, description, and tags",
-        "update-spec": "Update a field in an existing spec",
-        "remove-spec": "Remove a spec by ID",
-        "list": "List all spec IDs",
-        "get": "Get a specific spec by ID",
-        "help": "Show usage information"
-      },
-      "purpose": "Provide a human-friendly CLI interface for creating and managing jspec files without manual JSON editing"
+      "note": "This is an internal spec. User specs should not use the __ prefix.",
+      "components": {
+        "cli": {
+          "type": "tool",
+          "description": "Bash CLI tool for managing .jspec/source.json files",
+          "status": "active",
+          "tags": [
+            "cli",
+            "tooling",
+            "bash"
+          ],
+          "location": "./jspec",
+          "dependencies": [
+            "jq"
+          ],
+          "commands": {
+            "init": "Initialize a new jspec project",
+            "add-spec": "Add a new spec with ID, type, description, and tags",
+            "update-spec": "Update a field in an existing spec",
+            "remove-spec": "Remove a spec by ID",
+            "list": "List all spec IDs",
+            "get": "Get a specific spec by ID",
+            "help": "Show usage information"
+          }
+        },
+        "format": {
+          "type": "specification",
+          "description": "The jspec format itself - structure and conventions",
+          "status": "active",
+          "tags": [
+            "meta",
+            "format"
+          ],
+          "structure": {
+            "project": {
+              "name": "string - project name",
+              "description": "string - brief project description",
+              "version": "string - semver",
+              "architecture": "object - architectural overview",
+              "conventions": "object - global coding and organizational conventions",
+              "decisions": "array - architectural decision records"
+            },
+            "specs": {
+              "description": "object - keyed by unique spec identifier",
+              "spec_schema": {
+                "type": "string - spec type (api, model, component, etc.)",
+                "description": "string - what this spec describes",
+                "status": "string - draft, active, deprecated",
+                "tags": "array - searchable tags",
+                "...": "any additional fields relevant to the spec"
+              }
+            }
+          },
+          "examples": {
+            "get_project_info": "jq '.project' .jspec/source.json",
+            "list_all_specs": "jq '.specs | keys' .jspec/source.json",
+            "get_specific_spec": "jq '.specs[\"spec-name\"]' .jspec/source.json"
+          }
+        },
+        "worker": {
+          "type": "agent",
+          "description": "Unified agent for managing and implementing jspec specifications",
+          "status": "active",
+          "tags": [
+            "ai-agents",
+            "management",
+            "implementation"
+          ],
+          "capabilities": {
+            "management": [
+              "Add new specs (extend command)",
+              "Update existing specs (update command)",
+              "Validate jspec structure (validate command)",
+              "Analyze specs and provide recommendations (analyze command)"
+            ],
+            "implementation": [
+              "Read and explain spec details (explain command)",
+              "Implement specs according to requirements (implement command)",
+              "Verify implementations match specs (verify command)"
+            ]
+          },
+          "location": ".opencode/agent/jspec-worker.md"
+        }
+      }
     }
   }
 }
