@@ -402,21 +402,6 @@
             "best_practice": "Prefer modifying worker JSON object for behavioral changes to avoid needing CLI resets. Reserve agent file modifications for fundamental structural changes."
           }
         },
-        "template": {
-          "__meta": {
-            "type": "template",
-            "description": "Starter template for new jkspec projects",
-            "status": "active",
-            "tags": [
-              "template",
-              "setup"
-            ],
-            "location": "jkspec-template/"
-          },
-          "contents": {
-            "source_json": ".jkspec/source.json with minimal project structure"
-          }
-        },
         "traceability": {
           "__meta": {
             "type": "meta-guideline",
@@ -588,7 +573,7 @@
             },
             "quick_start": {
               "description": "Basic quick start instructions",
-              "content_draft": "1. Clone jkspec into your project (without git history):\n   ```bash\n   npx degit jkf16m/jkspec your-project/.jkspec-base\n   ```\n\n2. Copy the template to your project root:\n   ```bash\n   cp your-project/.jkspec-base/jkspec-template/.jkspec/source.json your-project/.jkspec/source.json\n   ```\n\n3. Update the `project` section in `.jkspec/source.json` with your project details\n4. Add your own specs to the `specs` object using kebab-case keys\n5. Query with jq: `jq '.specs' .jkspec/source.json`\n\nFor AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`."
+              "content_draft": "1. Clone jkspec into your project (without git history):\n   ```bash\n   npx degit jkf16m/jkspec .jkspec\n   ```\n\n2. The `.jkspec/source.json` file is your starting template - customize it:\n   - Update the `project` section with your project details\n   - Remove or modify the `__jkspec` internal spec as needed\n   - Add your own specs to the `specs` object using kebab-case keys\n\n3. Query with jq: `jq '.specs' .jkspec/source.json`\n\nFor AI agents: Point your agent to `.jkspec/source.json` and give it access to `jq`."
             },
             "core_concepts": {
               "description": "Brief explanation of core jkspec concepts",
