@@ -14,7 +14,7 @@
       "spec_keys": "Use kebab-case for spec identifiers (e.g., 'auth-service', 'user-model')",
       "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jkspec')",
       "versioning": "Semantic versioning for the spec format itself",
-      "dual_file_architecture": "Framework specs in .jkspec/source.json, project specs in .jkspec-project/project.json",
+      "dual_file_architecture": "Framework specs stay in .jkspec/source.json. All user specs MUST live in .jkspec-project/project.json (auto-created on bootstrap).",
       "schema_validation": "Both files validate against .jkspec/jkspec.schema.json using ajv"
     },
     "decisions": [
@@ -208,6 +208,17 @@
             "mark_task_done": "jq \".specs[\\\"spec-id\\\"].tasks[0].done = true\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
             "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
             "add_data_field": "jq \".specs[\\\"spec-id\\\"].custom_data = {key: \\\"value\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+          },
+          "documentation_bindings": {
+            "readme_spec": "__jkspec.components.readme-documentation",
+            "sections": [
+              "what_is_jkspec",
+              "core_concepts",
+              "examples"
+            ],
+            "implementation_output": "README.md",
+            "update_trigger": "When format spec status is draft, keep readme-documentation in draft until README reflects new structural rules.",
+            "rationale": "Format spec defines core structure and jq usage guidance that surface in README sections."
           }
         },
         "depth-system": {
@@ -429,11 +440,11 @@
               "description": "Update an existing spec field",
               "steps": [
                 "Determine target file: If spec-id starts with __, use .jkspec/source.json, otherwise use .jkspec-project/project.json",
-                "Verify the spec exists: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>",
+                "Verify the spec exists: jq \".specs | has(\\\"<spec-id>\\\")\" <target-file>",
                 "Use jq to update the field: jq \".specs[\\\"<spec-id>\\\"].<field> = <value>\" <target-file> > tmp.json && mv tmp.json <target-file>",
                 "For __meta fields: jq \".specs[\\\"<spec-id>\\\"].__meta.<field> = <value>\" <target-file> > tmp.json && mv tmp.json <target-file>",
                 "Validate the modified file against schema: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
-                "Show the updated spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
+                "Show the updated field: jq \".specs[\\\"<spec-id>\\\"].<field>\" <target-file>"
               ]
             },
             "validate": {
@@ -611,6 +622,52 @@
                 "Status Accuracy: Ensure active/deprecated status matches reality",
                 "Orphaned Specs: Specs referencing non-existent code"
               ]
+            }
+          },
+          "incremental_traversal": {
+            "commandment": "ALWAYS use incremental queries when exploring specs. Start with keys only, then drill down to specific fields as needed. Never read entire large objects unnecessarily.",
+            "rationale": "Efficiency and clarity - only fetch data you actually need at each step",
+            "approach": [
+              "Step 1: List keys to understand structure",
+              "Step 2: Check existence or filter by metadata",
+              "Step 3: Fetch specific fields or nested keys as needed",
+              "Step 4: Only read full objects when absolutely necessary"
+            ],
+            "examples": {
+              "explore_spec": [
+                "jq \".specs | keys\" - First see what specs exist",
+                "jq \".specs | has(\\\"spec-id\\\")\" - Check if specific spec exists",
+                "jq \".specs[\\\"spec-id\\\"] | keys\" - See structure of spec",
+                "jq \".specs[\\\"spec-id\\\"].__meta\" - Get metadata",
+                "jq \".specs[\\\"spec-id\\\"].specific_field\" - Get specific field only"
+              ],
+              "explore_nested": [
+                "jq \".specs[\\\"parent\\\"].children | keys\" - List child specs",
+                "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"] | keys\" - See child structure",
+                "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"].__meta.status\" - Get specific nested field"
+              ]
+            },
+            "anti_patterns": [
+              "Reading entire .specs object when you only need keys",
+              "Fetching full spec when you only need to check existence",
+              "Getting all fields when you only need __meta",
+              "Reading large nested structures when you only need to know what keys exist"
+            ]
+          },
+          "documentation_bindings": {
+            "produces": [
+              "README.md"
+            ],
+            "documentation_specs": [
+              "__jkspec.components.readme-documentation"
+            ],
+            "responsibilities": [
+              "Mark readme-documentation.__meta.status = \"draft\" when any referenced meta-spec is modified",
+              "Regenerate README.md from template before reactivating readme-documentation"
+            ],
+            "automation_hooks": {
+              "validation": "jkspec-validate checks if readme-documentation status is draft and emits reminder to regenerate README",
+              "implementation": "jkspec-implement readme-documentation executes README regeneration steps"
             }
           }
         },
@@ -915,6 +972,42 @@
             "voice": "First-person when discussing prototype status and personal experience",
             "technical_level": "Accessible to developers familiar with JSON and basic command-line tools",
             "approach": "Lead with value proposition, be transparent about limitations, focus on practical utility"
+          },
+          "references": {
+            "output_file": "README.md",
+            "source_meta_specs": [
+              "__jkspec.components.worker",
+              "__jkspec.components.format",
+              "__jkspec.components.depth-system",
+              "__jkspec.components.traceability",
+              "__jkspec.components.dual-file-architecture",
+              "__jkspec.components.schema-validation"
+            ],
+            "update_policy": "If any referenced meta-spec status is draft, keep this spec in draft and regenerate README.md from the template before marking it active again."
+          },
+          "template_structure": {
+            "description": "Canonical README scaffold that is regenerated whenever referenced meta-specs change",
+            "section_order": [
+              "header",
+              "what_is_jkspec",
+              "vision",
+              "prototype_notice",
+              "advantages",
+              "disadvantages",
+              "quick_start",
+              "core_concepts",
+              "examples",
+              "use_cases",
+              "support"
+            ],
+            "regeneration_steps": [
+              "Check statuses of all source_meta_specs using jq",
+              "Extract updated content from each referenced meta-spec",
+              "Rewrite README sections according to this template order",
+              "Review tone/style guidelines and update Buy Me a Coffee section",
+              "Set readme-documentation.__meta.status back to active only after README.md has been updated"
+            ],
+            "validation_signal": "jkspec-validate surfaces a reminder whenever readme-documentation.__meta.status is draft, indicating README.md must be regenerated."
           }
         },
         "dual-file-architecture": {
@@ -1125,11 +1218,11 @@
                 "expected": "Both files pass ajv validation against jkspec.schema.json",
                 "test_file": "test_schema_validation.js"
               },
-              "project_json_optional": {
-                "description": "Test that operations work when project.json does not exist",
+              "project_json_required": {
+                "description": "Test that operations BLOCK until project.json exists (create it automatically if missing)",
                 "setup": "Only .jkspec/source.json exists",
-                "expected": "Framework queries work, user spec queries create project.json",
-                "test_file": "test_optional_project.js"
+                "expected": ".jkspec-project/project.json is auto-created before accepting user specs",
+                "test_file": "test_project_required.js"
               },
               "migration_scenario": {
                 "description": "Test migration from single-file to dual-file",
@@ -1187,8 +1280,8 @@
             "project_file": {
               "path": ".jkspec-project/project.json",
               "schema": ".jkspec/jkspec.schema.json",
-              "description": "User project specifications - only validated if file exists",
-              "optional": true
+              "description": "User project specifications (file MUST exist; create it before any user spec work)",
+              "optional": false
             }
           },
           "validation_rules": {
