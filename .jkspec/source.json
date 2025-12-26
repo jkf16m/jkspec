@@ -147,7 +147,6 @@
               "active": "Specification fully implemented and working",
               "deprecated": "Specification no longer in use"
             },
-            "auto_draft_rule": "ANY modification to a spec (except direct status changes) automatically sets status to 'draft'. Modifying child specs also sets parent to 'draft'.",
             "philosophy": "Instead of redoing implementations, refine specs by adding more detailed child specifications to achieve more accurate results"
           },
           "nested_examples": {
@@ -581,10 +580,11 @@
             "verify": {
               "description": "Verify if a spec is implemented correctly",
               "steps": [
-                "Determine target file and read spec requirements: jq \".specs[\\\"<spec-id>\\\"]\" from appropriate file",
+                "Enumerate all specs with __meta.status == \"draft\" using jq \".. | objects | select(has(\\\"__meta\\\") and .__meta.status == \\\"draft\\\")\" before verification to understand pending changes.",
+                "Determine target file and read spec requirements: jq \\\".specs[\\\\\\\"<spec-id>\\\\\\\"]\\\" from appropriate file",
                 "Check if implementation exists at specified location (if location field present)",
                 "Verify implementation matches requirements",
-                "Check if all tasks are done (if tasks array exists): jq \".specs[\\\"<spec-id>\\\"].tasks[] | select(.done == false)\"",
+                "Check if all tasks are done (if tasks array exists): jq \\\".specs[\\\\\\\"<spec-id>\\\\\\\"].tasks[] | select(.done == false)\\\"",
                 "Verify dependencies are satisfied",
                 "Check for tests if specified",
                 "Report compliance or discrepancies"
