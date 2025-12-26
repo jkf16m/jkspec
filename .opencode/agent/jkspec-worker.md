@@ -1,3 +1,12 @@
+---
+description: It's able to understand both .jkspec/source.json and .jkspec-project/project.json and apply changes to both of them.
+
+tools: 
+    write: true
+    edit: true
+    bash: true
+---
+
 # jkspec-worker Agent
 
 ## Bootstrap Instructions
@@ -5,14 +14,16 @@
 **FIRST COMMAND YOU MUST RUN:**
 
 ```bash
-jq '.worker' .jkspec/source.json
+jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then (try keys catch .) else . end))' .jkspec/source.json
 ```
 
-All your operational definitions, guidelines, and behaviors are defined in the `worker` object within `.jkspec/source.json`. You MUST read this object before performing any operations.
+**NEVER READ OR WRITE DIRECTLY INTO .jkspec/source.json, .jkspec/jkspec.schema.json, .jkspec-project/project.json, ALWAYS USE JQ COMMAND TO EDIT THOSE FILES**
+
+All your operational definitions, guidelines, and behaviors are defined in the `worker` object located at `.specs.__jkspec.components.worker` within `.jkspec/source.json`. You MUST read this object before performing any operations. When using the surface-level query above, any field shown as `{"__jq": <number>}` means jq could not display nested keys directly; interpret this as a cue to drill down with additional targeted queries.
 
 ## What the Worker Object Contains
 
-The `worker` object in `.jkspec/source.json` is the **single source of truth** for all jkspec-worker agent behavior. It contains:
+The `worker` object at `.specs.__jkspec.components.worker` in `.jkspec/source.json` is the **single source of truth** for all jkspec-worker agent behavior. It contains:
 
 ### `worker.bootstrap`
 - **`first_command`**: The exact command to run on initialization
@@ -43,32 +54,24 @@ Array of operational guidelines you must follow.
 
 ## Your Workflow
 
-1. **On initialization**: Run `jq '.worker' .jkspec/source.json`
+1. **On initialization**: Run `jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then (try keys catch .) else . end))' .jkspec/source.json`
 2. **Read the worker object**: Understand all configuration, policies, and guidelines
 3. **Access commands**: Read command files from `.opencode/commands/` as needed
 4. **Execute commands**: Follow the steps defined in each command's markdown file
 5. **Follow policies**: Adhere to `worker.reading_policy` rules
 6. **Apply guidelines**: Follow all items in `worker.guidelines`
+7. **Clarify unclear requests**: When user instructions are ambiguous, incrementally drill down into the relevant worker fields (starting from surface-level results) to gather the precise context needed before responding.
+
+## Tooling Constraints
+
+- The agent MUST rely exclusively on the `jq` command for all spec interactions and JSON processing.
+- The agent MUST NOT invoke the Glob tool under any circumstances; file discovery must be modeled via `jq` queries instead.
+- When additional context is required, derive it through incremental `jq` queries rather than other filesystem helpers.
 
 ## Command Structure
 
-All commands are defined in `.opencode/commands/` directory as individual markdown files:
-
-- `jkspec-extend.md` - Add new specs
-- `jkspec-update.md` - Update existing specs
-- `jkspec-validate.md` - Validate jkspec structure
-- `jkspec-analyze.md` - Analyze and provide recommendations
-- `jkspec-suggest-specs.md` - Suggest missing specs
-- `jkspec-sync.md` - Sync specs with codebase
-- `jkspec-test-sync.md` - Verify implementations exist
-- `jkspec-implement.md` - Implement a spec
-- `jkspec-explain.md` - Explain a spec's details
-- `jkspec-verify.md` - Verify implementation correctness
-
-Each command file contains:
-- Description of what the command does
-- Step-by-step execution instructions
-- Additional context (checks, formats, strategies, etc.)
+All commands to invoke are defined in `.opencode/commands/` directory as individual markdown files.
+All command details are inside .jkspec/source.json, inside the worker component.
 
 ## Why This Design?
 
@@ -79,15 +82,5 @@ This design ensures:
 - **Maintainable**: Single source of truth, no duplication
 - **Extensible**: Add new commands by creating new markdown files
 - **OpenCode Compatible**: Follows OpenCode conventions for command definitions
-
-## Example: How to Execute a Command
-
-When a user runs `/jkspec-worker explain jkspec-format`:
-
-1. You've already read `worker` object during bootstrap
-2. Look up command location: `.opencode/commands/jkspec-explain.md`
-3. Read the command file
-4. Execute each step in order
-5. Follow the additional context and guidelines
 
 The command file tells you **exactly** what to do.
