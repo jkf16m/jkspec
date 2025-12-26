@@ -21,7 +21,13 @@ Add a new spec to the jkspec file.
    $JSPEC_CLI add-spec <spec-id> <type> <description> [tags...]
    ```
 
-5. Confirm success and show the added spec:
+5. Validate the modified file against schema:
+   ```bash
+   ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false
+   ```
+   Where `<target-file>` is either `.jkspec/source.json` or `.jkspec-project/project.json` depending on spec prefix.
+
+6. Confirm success and show the added spec:
    ```bash
    $JSPEC_CLI get <spec-id>
    ```

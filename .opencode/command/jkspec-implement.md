@@ -31,7 +31,13 @@ Implement a spec according to its requirements.
    $JSPEC_CLI update-spec <spec-id> status active
    ```
 
-8. Report what was implemented
+8. Validate the modified file against schema:
+   ```bash
+   ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false
+   ```
+   Where `<target-file>` is either `.jkspec/source.json` or `.jkspec-project/project.json` depending on spec prefix.
+
+9. Report what was implemented
 
 ## Implementation Strategy
 

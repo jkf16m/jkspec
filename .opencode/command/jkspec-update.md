@@ -19,7 +19,13 @@ Update an existing spec field.
    $JSPEC_CLI update-spec <spec-id> <field> <value>
    ```
 
-4. Show the updated spec:
+4. Validate the modified file against schema:
+   ```bash
+   ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false
+   ```
+   Where `<target-file>` is either `.jkspec/source.json` or `.jkspec-project/project.json` depending on spec prefix.
+
+5. Show the updated spec:
    ```bash
    $JSPEC_CLI get <spec-id>
    ```

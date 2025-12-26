@@ -13,7 +13,9 @@
       "query_tool": "jq",
       "spec_keys": "Use kebab-case for spec identifiers (e.g., 'auth-service', 'user-model')",
       "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jkspec')",
-      "versioning": "Semantic versioning for the spec format itself"
+      "versioning": "Semantic versioning for the spec format itself",
+      "dual_file_architecture": "Framework specs in .jkspec/source.json, project specs in .jkspec-project/project.json",
+      "schema_validation": "Both files validate against .jkspec/jkspec.schema.json using ajv"
     },
     "decisions": [
       {
@@ -51,6 +53,15 @@
         "context": "CLI tool adds complexity and maintenance burden. AI agents are fluent in jq. Direct manipulation is more transparent.",
         "decision": "Remove jkspec CLI tool. Use jq directly for all read/write operations on .jkspec/source.json",
         "consequences": "Simpler architecture with fewer moving parts. Agent can see exact jq commands. Users learn standard jq instead of custom CLI. Slightly more verbose operations but more transparent and flexible."
+      },
+      {
+        "id": "ADR-005",
+        "title": "Separate jkspec framework from project specifications using dual-file architecture",
+        "status": "accepted",
+        "date": "2025-12-25",
+        "context": "Users need to update jkspec tooling without affecting their project data. Currently .jkspec/source.json mixes framework specs (__jkspec) with project specs, making updates risky and cumbersome.",
+        "decision": "Split into two files: .jkspec/source.json (framework only with __jkspec specs) and .jkspec-project/project.json (user project specs). Both use the same schema. Agents check for .jkspec-project/ on init and create if missing.",
+        "consequences": "Users can update jkspec by deleting .jkspec/ and cloning fresh. Project data in .jkspec-project/project.json remains safe. Commands must implement file selection logic based on spec-id prefix. Slightly more complex for agents but much cleaner separation of concerns."
       }
     ]
   },
@@ -704,6 +715,325 @@
             "technical_level": "Accessible to developers familiar with JSON and basic command-line tools",
             "approach": "Lead with value proposition, be transparent about limitations, focus on practical utility"
           }
+        },
+        "dual-file-architecture": {
+          "__meta": {
+            "type": "architecture",
+            "description": "Dual-file architecture separating jkspec framework from project specifications",
+            "status": "draft",
+            "tags": [
+              "architecture",
+              "meta",
+              "separation-of-concerns"
+            ],
+            "purpose": "Enable clean separation between jkspec framework tooling and user project specs, allowing framework updates without affecting project data",
+            "complexity": "high",
+            "subagent_required": true
+          },
+          "rationale": {
+            "problem": "Currently .jkspec/source.json contains both jkspec framework specs (__jkspec) and project specs. This makes it difficult to update jkspec tooling without affecting user data.",
+            "solution": "Split into two files: .jkspec/source.json (framework) and .jkspec-project/project.json (user specs). Users can update framework by cloning fresh .jkspec/ directory.",
+            "benefits": [
+              "Clear separation between framework and project data",
+              "Users can update jkspec by deleting .jkspec/ and cloning fresh",
+              "Project specs remain untouched during framework updates",
+              "Transferable project.json can be shared across teams",
+              "Framework and project can evolve independently"
+            ]
+          },
+          "architecture": {
+            "framework_location": {
+              "path": ".jkspec/",
+              "description": "Contains jkspec framework specifications and tooling",
+              "files": {
+                "source.json": {
+                  "description": "Framework specifications including __jkspec meta specs",
+                  "contains": [
+                    "project metadata about jkspec itself",
+                    "__jkspec spec with all framework components",
+                    "worker configuration",
+                    "Internal framework specs only"
+                  ],
+                  "modifiable": "Only when modifying the jkspec framework itself"
+                },
+                "jkspec.schema.json": {
+                  "description": "JSON Schema used by both source.json and project.json",
+                  "shared": true
+                }
+              }
+            },
+            "project_location": {
+              "path": ".jkspec-project/",
+              "description": "Contains user project specifications",
+              "files": {
+                "project.json": {
+                  "description": "User project specifications",
+                  "schema": "Uses .jkspec/jkspec.schema.json",
+                  "contains": [
+                    "project metadata for the user's actual project",
+                    "User-defined specs (no __ prefix)",
+                    "Project-specific conventions and decisions",
+                    "All user spec data"
+                  ],
+                  "transferable": true,
+                  "modifiable": "Users freely modify this for their project"
+                }
+              },
+              "note": "Not created in jkspec repo - only in user projects"
+            }
+          },
+          "schema_usage": {
+            "description": "Both files use the same jkspec.schema.json for validation",
+            "framework_file": ".jkspec/source.json validates against .jkspec/jkspec.schema.json",
+            "project_file": ".jkspec-project/project.json validates against .jkspec/jkspec.schema.json",
+            "shared_structure": {
+              "project": "Both files have project object with different metadata",
+              "specs": "Both files have specs object with different content",
+              "worker": ".jkspec/source.json contains worker config, .jkspec-project/project.json does not need it"
+            }
+          },
+          "agent_behavior": {
+            "initialization": {
+              "description": "How agents should initialize and discover spec files",
+              "discovery_order": [
+                "1. Check if .jkspec-project/ directory exists",
+                "2. If not exists, create .jkspec-project/ directory",
+                "3. Check if .jkspec-project/project.json exists",
+                "4. If not exists, create project.json with minimal template",
+                "5. Always read .jkspec/source.json for framework specs and worker config",
+                "6. Always read .jkspec-project/project.json for user project specs"
+              ]
+            },
+            "bootstrap_modification": {
+              "description": "Worker bootstrap needs to check for project file existence",
+              "location": "Update worker.bootstrap or add to worker guidelines",
+              "new_checks": [
+                "Check .jkspec-project/ existence before any operations",
+                "Auto-create .jkspec-project/project.json if missing",
+                "Inform user when creating new project file"
+              ]
+            },
+            "query_strategy": {
+              "framework_queries": "Use .jkspec/source.json for framework and worker info",
+              "project_queries": "Use .jkspec-project/project.json for user project specs",
+              "combined_view": "Agents may need to query both files for complete context"
+            }
+          },
+          "migration": {
+            "description": "How to migrate existing projects from single-file to dual-file",
+            "from_current_structure": {
+              "step_1": "Identify user specs (non-__ prefix) in current .jkspec/source.json",
+              "step_2": "Create .jkspec-project/ directory",
+              "step_3": "Create project.json with project metadata and user specs only",
+              "step_4": "Remove user specs from .jkspec/source.json, keep only __jkspec and framework specs",
+              "step_5": "Update .jkspec/source.json project metadata to describe jkspec framework itself",
+              "step_6": "Test agent queries against both files"
+            }
+          },
+          "project_json_template": {
+            "description": "Minimal template for new .jkspec-project/project.json",
+            "template": {
+              "project": {
+                "name": "your-project-name",
+                "description": "Your project description",
+                "version": "0.1.0",
+                "architecture": {
+                  "style": "Define your architecture style",
+                  "pattern": "Define your patterns"
+                },
+                "conventions": {
+                  "spec_location": ".jkspec-project/project.json"
+                },
+                "decisions": []
+              },
+              "specs": {}
+            }
+          },
+          "worker_integration": {
+            "description": "How worker commands should integrate with dual-file architecture",
+            "command_modifications": {
+              "jkspec-extend": "Should add user specs to .jkspec-project/project.json, not source.json",
+              "jkspec-update": "Should determine which file to update based on spec prefix (__ = source.json, else = project.json)",
+              "jkspec-validate": "Should validate both files",
+              "jkspec-analyze": "Should analyze both files and report on each",
+              "jkspec-suggest-specs": "Should suggest specs for project.json",
+              "jkspec-test-sync": "Should check implementations for specs in project.json",
+              "jkspec-implement": "Should work with specs from project.json",
+              "jkspec-explain": "Should explain specs from either file",
+              "jkspec-verify": "Should verify implementations from project.json"
+            },
+            "file_selection_logic": {
+              "rule_1": "If spec-id starts with __, use .jkspec/source.json (framework)",
+              "rule_2": "If spec-id does NOT start with __, use .jkspec-project/project.json (user project)",
+              "rule_3": "Worker config always read from .jkspec/source.json",
+              "rule_4": "Project specs always read from .jkspec-project/project.json"
+            }
+          },
+          "tasks": [
+            {
+              "name": "Update worker bootstrap guidelines",
+              "description": "Add project file discovery to worker.guidelines so agents know to check for .jkspec-project/project.json",
+              "done": false
+            },
+            {
+              "name": "Add schema validation spec",
+              "description": "Add or update spec documenting that validation uses ajv for both source.json and project.json",
+              "done": false
+            },
+            {
+              "name": "Create dual-file architecture tests",
+              "description": "Create tests in .jkspec/tests/ to verify agent behavior with dual-file setup",
+              "done": false
+            },
+            {
+              "name": "Update worker commands documentation",
+              "description": "Update command markdown files to document file selection logic (__ prefix = source.json, no prefix = project.json)",
+              "done": false
+            },
+            {
+              "name": "Update README with dual-file explanation",
+              "description": "Document in README that users get project.json auto-created in their projects",
+              "done": false
+            }
+          ],
+          "implementation_note": "This is a meta-spec only. The .jkspec-project/ directory and project.json file are NOT created in the jkspec repository itself. They are auto-created by agents when users use jkspec in their own projects.",
+          "test_scenarios": {
+            "description": "Test scenarios to verify dual-file architecture behavior",
+            "test_location": ".jkspec/tests/dual-file-architecture/",
+            "scenarios": {
+              "project_json_discovery": {
+                "description": "Test that agents properly discover or create project.json",
+                "setup": "Temporary directory with .jkspec/ but no .jkspec-project/",
+                "expected": "Agent creates .jkspec-project/project.json with minimal template",
+                "test_file": "test_project_discovery.js"
+              },
+              "file_selection_by_prefix": {
+                "description": "Test that __ prefix specs route to source.json, others to project.json",
+                "setup": "Both source.json and project.json exist",
+                "operations": [
+                  "Query __jkspec spec - should read from source.json",
+                  "Query user-spec (no __) - should read from project.json",
+                  "Add spec with __ prefix - should write to source.json",
+                  "Add spec without __ prefix - should write to project.json"
+                ],
+                "test_file": "test_file_selection.js"
+              },
+              "schema_validation_both_files": {
+                "description": "Test that validation validates both files",
+                "setup": "Both source.json and project.json with valid specs",
+                "expected": "Both files pass ajv validation against jkspec.schema.json",
+                "test_file": "test_schema_validation.js"
+              },
+              "project_json_optional": {
+                "description": "Test that operations work when project.json does not exist",
+                "setup": "Only .jkspec/source.json exists",
+                "expected": "Framework queries work, user spec queries create project.json",
+                "test_file": "test_optional_project.js"
+              },
+              "migration_scenario": {
+                "description": "Test migration from single-file to dual-file",
+                "setup": "Old source.json with both __ and user specs",
+                "operation": "Run migration to split into source.json and project.json",
+                "expected": "__ specs remain in source.json, user specs move to project.json",
+                "test_file": "test_migration.js"
+              }
+            }
+          },
+          "schema_handling": {
+            "description": "How schema files are handled in dual-file architecture",
+            "schema_location": ".jkspec/jkspec.schema.json",
+            "shared_schema": "Both source.json and project.json validate against the same schema file",
+            "user_projects": {
+              "option_1": {
+                "approach": "Reference schema from .jkspec/ directory",
+                "validation_path": ".jkspec/jkspec.schema.json",
+                "note": "Schema is part of framework, gets updated with framework updates"
+              },
+              "option_2": {
+                "approach": "Copy schema to .jkspec-project/ directory",
+                "validation_path": ".jkspec-project/jkspec.schema.json",
+                "note": "Allows offline validation, but needs manual sync with framework updates"
+              },
+              "recommended": "option_1 - Keep schema in .jkspec/ as single source of truth"
+            },
+            "validation_command": "Validation should always reference .jkspec/jkspec.schema.json regardless of which file is being validated"
+          }
+        },
+        "schema-validation": {
+          "__meta": {
+            "type": "validation",
+            "description": "JSON Schema validation for jkspec files using ajv",
+            "status": "draft",
+            "tags": [
+              "validation",
+              "schema",
+              "ajv"
+            ],
+            "purpose": "Define validation strategy for both source.json and project.json files"
+          },
+          "validator": {
+            "tool": "ajv",
+            "description": "AJV (Another JSON Schema Validator) - fast JSON schema validator",
+            "package": "ajv",
+            "why_ajv": "Industry-standard, performant, supports JSON Schema draft 2020-12"
+          },
+          "files_to_validate": {
+            "framework_file": {
+              "path": ".jkspec/source.json",
+              "schema": ".jkspec/jkspec.schema.json",
+              "description": "Framework specifications including __jkspec meta specs"
+            },
+            "project_file": {
+              "path": ".jkspec-project/project.json",
+              "schema": ".jkspec/jkspec.schema.json",
+              "description": "User project specifications - only validated if file exists",
+              "optional": true
+            }
+          },
+          "validation_rules": {
+            "required_fields": [
+              "All specs must have __meta with type, description, status",
+              "Root must have project and specs objects"
+            ],
+            "spec_id_format": "Must use kebab-case (lowercase with hyphens)",
+            "status_values": [
+              "draft",
+              "active",
+              "deprecated"
+            ],
+            "internal_specs": "Specs with __ prefix should only exist in source.json"
+          },
+          "validation_command": {
+            "description": "jkspec-validate command validates both files",
+            "behavior": [
+              "Validate .jkspec/source.json against schema",
+              "Check if .jkspec-project/project.json exists",
+              "If exists, validate .jkspec-project/project.json against schema",
+              "Report validation results for both files"
+            ]
+          },
+          "tasks": [
+            {
+              "name": "Install ajv dependency",
+              "description": "Add ajv package for JSON schema validation",
+              "done": false
+            },
+            {
+              "name": "Create validation script",
+              "description": "Create validation script that uses ajv to validate both files",
+              "done": false
+            },
+            {
+              "name": "Integrate with jkspec-validate command",
+              "description": "Update jkspec-validate command to use ajv validation",
+              "done": false
+            },
+            {
+              "name": "Add validation tests",
+              "description": "Create tests for schema validation with valid and invalid specs",
+              "done": false
+            }
+          ]
         }
       }
     }
@@ -754,7 +1084,12 @@
       "Handle errors gracefully with explanations",
       "Follow kebab-case convention for spec IDs",
       "Be autonomous within spec scope",
-      "Ensure thorough implementation according to requirements"
+      "Ensure thorough implementation according to requirements",
+      "Dual-file architecture: Check for .jkspec-project/project.json for user project specs, use .jkspec/source.json for framework specs",
+      "File selection: Specs with __ prefix go to source.json (framework), specs without __ prefix go to project.json (user project)",
+      "Auto-create project.json: If .jkspec-project/project.json does not exist, create it with minimal template on first user spec operation",
+      "Always validate both source.json and project.json against jkspec.schema.json using ajv",
+      "After ANY modification to source.json or project.json, IMMEDIATELY validate against jkspec.schema.json using: ajv validate -s .jkspec/jkspec.schema.json -d <file> --spec=draft2020 --strict=false. If validation fails, fix the issue before proceeding."
     ],
     "complex_specs": {
       "description": "How to handle specs with multiple components",
