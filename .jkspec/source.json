@@ -250,7 +250,12 @@
         "worker": {
           "bootstrap": {
             "first_command": "jq '.worker' .jkspec/source.json",
-            "description": "On initialization, agent must read the worker object which contains all operational definitions"
+            "description": "On initialization, agent must read the worker object which contains all operational definitions",
+            "__meta": {
+              "type": "config",
+              "description": "Defines initialization steps and first command executed when the worker starts",
+              "status": "active"
+            }
           },
           "commands_location": ".opencode/command",
           "commands_description": "All jkspec-worker commands are defined as minimal markdown files in .opencode/command/ directory. Each command file references a jq query to fetch the full command definition from .jkspec/source.json at .specs.__jkspec.components.worker.commands_definitions.<command-name>",
@@ -278,7 +283,12 @@
               "Use --arg for passing variables to avoid shell escaping issues",
               "Use -r flag for raw output when you need unquoted strings",
               "Test complex jq queries with read-only operations first"
-            ]
+            ],
+            "__meta": {
+              "type": "policy",
+              "description": "Explains how the worker reads and modifies specs using jq",
+              "status": "active"
+            }
           },
           "guidelines": [
             "Always validate input - check spec-id naming conventions and required fields",
@@ -306,7 +316,12 @@
               "Implement systematically through each component",
               "Track progress and update status fields",
               "Report comprehensively on all components"
-            ]
+            ],
+            "__meta": {
+              "type": "guideline",
+              "description": "Guidance for handling multi-component or deeply nested specifications",
+              "status": "active"
+            }
           },
           "subagent_policy": {
             "description": "When and how jkspec-worker spawns subagents for complex implementation tasks",
@@ -330,13 +345,23 @@
               "Monitor subagent work and integrate results",
               "Update spec status and tasks array after subagent completes work"
             ],
-            "example_workflow": "1. Read spec with jq\n2. Check complexity and subagent_required fields\n3. If needed, use Task tool to spawn subagent with full spec context\n4. Subagent implements according to spec requirements\n5. Worker verifies implementation and updates spec status"
+            "example_workflow": "1. Read spec with jq\n2. Check complexity and subagent_required fields\n3. If needed, use Task tool to spawn subagent with full spec context\n4. Subagent implements according to spec requirements\n5. Worker verifies implementation and updates spec status",
+            "__meta": {
+              "type": "policy",
+              "description": "Rules for when and how the worker should spawn subagents",
+              "status": "active"
+            }
           },
           "greeting": {
             "style": "minimal",
             "message": "Initialized and ready.",
             "include_commands_list": false,
-            "rationale": "Keep greeting concise - user can ask for help if needed"
+            "rationale": "Keep greeting concise - user can ask for help if needed",
+            "__meta": {
+              "type": "behavior",
+              "description": "Defines the greeting tone, message, and rationale for user interactions",
+              "status": "active"
+            }
           },
           "commands_definitions": {
             "extend": {
@@ -397,6 +422,11 @@
                 "Document rationale for internal changes in the response",
                 "Never query or access project specs (.jkspec-project/project.json) while in dev-mode; limit interactions strictly to internal __-prefixed specs."
               ]
+            },
+            "__meta": {
+              "type": "reference",
+              "description": "Detailed definitions, steps, and principles for each worker command",
+              "status": "active"
             }
           },
           "__meta": {
@@ -428,7 +458,12 @@
               "Implement specs according to requirements (implement command)",
               "Verify implementations match specs (verify command)",
               "Work with complex multi-component specs"
-            ]
+            ],
+            "__meta": {
+              "type": "reference",
+              "description": "Catalog of management and implementation capabilities exposed by the worker",
+              "status": "active"
+            }
           },
           "commands": {
             "extend": "Add a new spec to the jspec file",
@@ -439,7 +474,12 @@
             "test-sync": "Verify that all specs have corresponding implementations",
             "implement": "Implement a spec according to its requirements",
             "explain": "Read and explain a specific spec's details",
-            "verify": "Verify if a spec is implemented correctly"
+            "verify": "Verify if a spec is implemented correctly",
+            "__meta": {
+              "type": "reference",
+              "description": "Mapping of command names to their functional purpose",
+              "status": "active"
+            }
           },
           "jq_operations": {
             "reading": {
@@ -472,7 +512,18 @@
               "conditional_update": "jq \".specs |= with_entries(if .value.__meta.status == \\\"draft\\\" then .value.__meta.status = \\\"reviewed\\\" else . end)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "bulk_add_meta_field": "jq \".specs |= with_entries(.value.__meta.updated = \\\"2025-12-25\\\")\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "deep_merge_data": "jq \".specs[\\\"spec-id\\\"] |= . * {new_field: \\\"value\\\", nested: {key: \\\"val\\\"}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
-              "filter_and_rebuild": "jq \".specs |= with_entries(select(.value.__meta.status != \\\"deprecated\\\"))\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+              "filter_and_rebuild": "jq \".specs |= with_entries(select(.value.__meta.status != \\\"deprecated\\\"))\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "list_draft_paths": {
+                "description": "List dot-delimited JSON paths for every draft spec",
+                "project_command": "jq -r \"paths(objects | select(has(\\\"__meta\\\") and .__meta.status == \\\"draft\\\")) | map(tostring) | join(\\\".\\\")\" .jkspec-project/project.json",
+                "dev_mode_command": "jq -r \"paths(objects | select(has(\\\"__meta\\\") and .__meta.status == \\\"draft\\\")) | select(.[0] == \\\"specs\\\" and .[1] == \\\"__jkspec\\\") | map(tostring) | join(\\\".\\\")\" .jkspec/source.json",
+                "usage_notes": "Always run the project command first (covers user specs). Only run the dev mode command when explicitly working on __ prefixed internal specs inside source.json."
+              }
+            },
+            "__meta": {
+              "type": "reference",
+              "description": "Library of jq snippets for reading and editing specs",
+              "status": "active"
             }
           },
           "workflow": {
@@ -512,7 +563,12 @@
                 ]
               }
             },
-            "philosophy": "Measure twice, cut once - thorough understanding before implementation prevents rework"
+            "philosophy": "Measure twice, cut once - thorough understanding before implementation prevents rework",
+            "__meta": {
+              "type": "process",
+              "description": "Prescribed workflow for creating and updating specs",
+              "status": "active"
+            }
           },
           "context_management": {
             "description": "Strategy for querying JSON specs to maintain efficient context usage",
@@ -536,7 +592,12 @@
                 "nested_when_needed": "jq '.specs[\"parent\"].children[\"child\"]' .jkspec/source.json"
               }
             },
-            "rationale": "Maintains efficient context window usage by loading only necessary information. Worker starts with high-level overview and drills down selectively rather than loading entire nested structures."
+            "rationale": "Maintains efficient context window usage by loading only necessary information. Worker starts with high-level overview and drills down selectively rather than loading entire nested structures.",
+            "__meta": {
+              "type": "policy",
+              "description": "Strategy for incremental context gathering and selective deepening",
+              "status": "active"
+            }
           },
           "modification_policy": {
             "description": "Guidelines for modifying worker behavior and understanding impact scope",
@@ -571,7 +632,12 @@
               "reason": "Command files are read dynamically when commands are invoked",
               "note": "Worker reads command markdown files on-demand when executing specific commands"
             },
-            "best_practice": "Prefer modifying worker JSON object for behavioral changes to avoid needing CLI resets. Reserve agent file modifications for fundamental structural changes."
+            "best_practice": "Prefer modifying worker JSON object for behavioral changes to avoid needing CLI resets. Reserve agent file modifications for fundamental structural changes.",
+            "__meta": {
+              "type": "policy",
+              "description": "Guidance for editing worker JSON, agent files, and command files",
+              "status": "active"
+            }
           },
           "incremental_traversal": {
             "commandment": "ALWAYS use incremental queries when exploring specs. Start with keys only, then drill down to specific fields as needed. Never read entire large objects unnecessarily.",
@@ -601,7 +667,12 @@
               "Fetching full spec when you only need to check existence",
               "Getting all fields when you only need __meta",
               "Reading large nested structures when you only need to know what keys exist"
-            ]
+            ],
+            "__meta": {
+              "type": "guideline",
+              "description": "Instructions for incremental exploration of specs and avoiding anti-patterns",
+              "status": "active"
+            }
           },
           "documentation_bindings": {
             "produces": [
@@ -617,6 +688,11 @@
             "automation_hooks": {
               "validation": "jkspec-validate checks if readme-documentation status is draft and emits reminder to regenerate README",
               "implementation": "jkspec-implement readme-documentation executes README regeneration steps"
+            },
+            "__meta": {
+              "type": "guideline",
+              "description": "Rules for documentation outputs, bindings, and automation hooks",
+              "status": "active"
             }
           }
         },

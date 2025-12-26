@@ -4,7 +4,10 @@
   "title": "jkspec Schema",
   "description": "JSON Schema for jkspec format with recursive spec definitions using __meta",
   "type": "object",
-  "required": ["project", "specs"],
+  "required": [
+    "project",
+    "specs"
+  ],
   "properties": {
     "project": {
       "type": "object",
@@ -60,17 +63,27 @@
     "spec": {
       "type": "object",
       "description": "A specification - any object with __meta is considered a spec and can contain nested specs",
-      "required": ["__meta"],
+      "required": [
+        "__meta"
+      ],
       "properties": {
         "__meta": {
           "type": "object",
           "description": "Metadata that identifies this as a spec and provides agent instructions",
-          "required": ["type", "description", "status"],
+          "required": [],
           "properties": {
             "type": {
               "type": "string",
               "description": "Spec type (api, model, component, feature, meta, etc.)",
-              "examples": ["api", "component", "feature", "model", "service", "meta", "agent"]
+              "examples": [
+                "api",
+                "component",
+                "feature",
+                "model",
+                "service",
+                "meta",
+                "agent"
+              ]
             },
             "description": {
               "type": "string",
@@ -78,7 +91,11 @@
             },
             "status": {
               "type": "string",
-              "enum": ["draft", "active", "deprecated"],
+              "enum": [
+                "draft",
+                "active",
+                "deprecated"
+              ],
               "description": "Implementation status: draft (not implemented), active (implemented and working), deprecated (no longer in use)"
             },
             "tags": {
@@ -129,7 +146,11 @@
                 },
                 "complexity": {
                   "type": "string",
-                  "enum": ["simple", "medium", "complex"],
+                  "enum": [
+                    "simple",
+                    "medium",
+                    "complex"
+                  ],
                   "description": "Complexity level hint for the agent"
                 },
                 "estimated_effort": {
@@ -157,7 +178,11 @@
           "description": "Implementation tasks for traceability",
           "items": {
             "type": "object",
-            "required": ["name", "description", "done"],
+            "required": [
+              "name",
+              "description",
+              "done"
+            ],
             "properties": {
               "name": {
                 "type": "string",
@@ -184,7 +209,12 @@
               "description": "Nested spec (must have __meta)"
             },
             {
-              "type": ["string", "number", "boolean", "null"],
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ],
               "description": "Primitive value"
             },
             {
