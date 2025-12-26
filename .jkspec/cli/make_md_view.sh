@@ -20,10 +20,64 @@ mkdir -p "$(dirname "$OUTPUT_MD")"
 jq -r --arg spec "$SPEC_ID" '
   def section($title; $content):
     if ($content | tostring | length) > 0 then
-      "## " + $title + "\n\n" + $content + "\n\n"
+      "## " + $title + "\n\n" + $content + "\n"
     else
       ""
     end;
+
+  def hashes($n):
+    reduce range(0; $n) as $i (""; . + "#");
+
+  def heading($level; $title):
+    hashes($level) + " " + ($title | tostring) + "\n\n";
+
+  def format_scalar($value):
+    ($value | type) as $type |
+    if $type == "boolean" then (if $value then "true" else "false" end)
+    elif $type == "number" then ($value | tostring)
+    elif $type == "string" then $value
+    else ($value | tostring)
+    end;
+
+  def render_nested($value; $level):
+    if $value == null then ""
+    else ($value | type) as $type |
+      if $type == "object" then
+        ($value | to_entries | map(
+          heading($level; .key) + render_nested(.value; $level + 1)
+        ) | join("\n"))
+      elif $type == "array" then
+        ($value | to_entries | map(
+          .value as $v |
+          .key as $i |
+          ($v | type) as $vtype |
+          if $vtype == "object" then
+            heading($level; ($v.name // $v.title // ("Item " + (($i + 1) | tostring)))) +
+            render_nested($v; $level + 1)
+          else
+            "- " + format_scalar($v)
+          end
+        ) | join("\n")) + "\n\n"
+      else
+        format_scalar($value) + "\n\n"
+      end
+    end;
+
+  def render_meta($meta):
+    if $meta == null then "" else render_nested($meta; 3) end;
+
+  def render_requirements($reqs):
+    if $reqs == null then "" else render_nested($reqs; 3) end;
+
+  def render_tasks($tasks):
+    if $tasks == null then "" else render_nested($tasks; 3) end;
+
+  def render_notes($notes):
+    if $notes == null then "" else render_nested($notes; 3) end;
+
+  def render_any($value):
+    if $value == null then "" else render_nested($value; 3) end;
+
 
   def render_meta($meta):
     if $meta == null then "" else
