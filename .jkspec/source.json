@@ -306,7 +306,8 @@
             "After ANY modification to source.json or project.json, IMMEDIATELY validate against jkspec.schema.json using: ajv validate -s .jkspec/jkspec.schema.json -d <file> --spec=draft2020 --strict=false. If validation fails, fix the issue before proceeding.",
             "Default spec queries MUST target .jkspec-project/project.json unless the user explicitly requests framework specs.",
             "Do not mention meta-specs or __jkspec components unless the user prompts for them.",
-            "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec."
+            "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec.",
+            "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user"
           ],
           "complex_specs": {
             "description": "How to handle specs with multiple components",
@@ -701,7 +702,106 @@
               "status": "active"
             },
             "description": "Rules connecting specs to documentation outputs and automation hooks"
-          }
+          },
+          "view_inspection": {
+            "__meta": {
+              "type": "guideline",
+              "status": "draft",
+              "tags": [
+                "worker",
+                "inspection",
+                "cli"
+              ],
+              "created": "2025-12-26T05:51:56Z",
+              "updated": "2025-12-26T05:51:56Z",
+              "description": "Ensure workers generate Markdown inspection views for every new or updated spec using the dedicated CLI tool"
+            },
+            "problem": {
+              "context": "Specs live as JSON which is hard for users to skim right after creation.",
+              "pain_points": [
+                "Users cannot easily review spec details without running jq queries",
+                "Fresh specs may contain mistakes that go unnoticed without a readable view",
+                "There is no automated habit enforcing view generation"
+              ],
+              "goal": "Provide an immediate, human-readable Markdown snapshot for each spec change."
+            },
+            "deliverables": {
+              "cli_tool": {
+                "path": ".jkspec/cli/make_md_view.sh",
+                "description": "Shell script that accepts a spec-id, JSON file path, and Markdown output path, then renders a deterministic Markdown view using jq.",
+                "requirements": [
+                  "Support any spec JSON structure that follows jkspec conventions",
+                  "Gracefully handle missing optional sections by skipping them",
+                  "Create parent directories for the output path automatically",
+                  "Exit with non-zero status on invalid input"
+                ]
+              },
+              "worker_guideline": {
+                "description": "Operational rule instructing workers to render Markdown views immediately after writing or updating a spec.",
+                "output_location": ".tmp/<spec-id>.md",
+                "rationale": "Keeps review loop tight and gives users a document they can open without tooling"
+              }
+            },
+            "requirements": [
+              {
+                "id": "req-cli-view",
+                "title": "CLI Markdown renderer",
+                "priority": "critical",
+                "description": "Implement make_md_view.sh to convert spec JSON into a Markdown document with sections for meta, problem, requirements, implementation, testing, tasks, and notes."
+              },
+              {
+                "id": "req-tmp-folder",
+                "title": "Temporary inspection workspace",
+                "priority": "high",
+                "description": "Ensure a top-level .tmp directory exists and always house rendered Markdown files there using the <spec-id>.md naming pattern."
+              },
+              {
+                "id": "req-workflow",
+                "title": "Post-spec workflow",
+                "priority": "high",
+                "description": "Immediately after adding or editing a spec, export the spec JSON to a temp file and run the CLI to generate the Markdown view, then surface the output path in responses."
+              }
+            ],
+            "workflow": {
+              "steps": [
+                "Finish jq edits to the target spec",
+                "Validate the JSON file",
+                "Create .tmp if it does not exist",
+                "Export the spec JSON with jq to a temporary file",
+                "Run .jkspec/cli/make_md_view.sh <spec-id> <json-path> .tmp/<spec-id>.md",
+                "Reference the generated Markdown path in the user-facing summary"
+              ],
+              "automation_notes": "Future automation can watch .tmp for stale files and regenerate automatically"
+            },
+            "tasks": [
+              {
+                "name": "Create CLI tool",
+                "description": "Author make_md_view.sh with jq-based Markdown rendering",
+                "done": false
+              },
+              {
+                "name": "Add worker guideline",
+                "description": "Append rule requiring Markdown view generation for each new/updated spec",
+                "done": false
+              },
+              {
+                "name": "Demonstrate sample output",
+                "description": "Generate a Markdown file for the latest spec to show the workflow",
+                "done": false
+              }
+            ],
+            "notes": [
+              "Store renderer outputs outside git-tracked areas to avoid noise (hence .tmp)",
+              "Leverage jq exclusively so the script remains dependency-light"
+            ]
+          },
+          "tasks": [
+            {
+              "name": "Render Markdown view for latest spec",
+              "description": "Use make_md_view.sh to generate .tmp/<spec-id>.md after spec updates",
+              "done": true
+            }
+          ]
         },
         "traceability": {
           "__meta": {

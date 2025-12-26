@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -ne 3 ]; then
+  echo "Usage: make_md_view.sh <spec-id> <json-file> <output-md>" >&2
+  exit 1
+fi
+
+SPEC_ID="$1"
+JSON_FILE="$2"
+OUTPUT_MD="$3"
+
+if [ ! -f "$JSON_FILE" ]; then
+  echo "Spec JSON file not found: $JSON_FILE" >&2
+  exit 2
+fi
+
+mkdir -p "$(dirname "$OUTPUT_MD")"
+
+jq -r --arg spec "$SPEC_ID" '
+  def section($title; $content):
+    if ($content | tostring | length) > 0 then
+      "## " + $title + "\n\n" + $content + "\n\n"
+    else
+      ""
+    end;
+
+  def render_meta($meta):
+    if $meta == null then "" else
+      "- Type: " + ($meta.type // "unknown") + "\n" +
+      "- Status: " + ($meta.status // "unknown") + "\n" +
+      (if $meta.tags then "- Tags: " + ($meta.tags | join(", ")) + "\n" else "" end) +
+      (if $meta.description then "- Description: " + $meta.description + "\n" else "" end)
+    end;
+
+  def indent($level):
+    reduce range(0; $level) as $i (""; . + "  ");
+
+  def render_nested($value; $level):
+    if $value == null then ""
+    else ($value | type) as $type
+      | if $type == "object" then
+          ($value | to_entries | map(
+            indent($level) + "- **" + .key + "**: " +
+            ( .value as $v |
+              ($v | type) as $vtype |
+              if $v == null then "null"
+              elif ($vtype == "object" or $vtype == "array") then "\n" + render_nested($v; $level + 1)
+              else ($v | tostring)
+              end
+            )
+          ) | join("\n"))
+        elif $type == "array" then
+          ($value | map(
+            indent($level) + "- " +
+            ( . as $v |
+              ($v | type) as $vtype |
+              if $v == null then "null"
+              elif ($vtype == "object" or $vtype == "array") then "\n" + render_nested($v; $level + 1)
+              else ($v | tostring)
+              end
+            )
+          ) | join("\n"))
+        else
+          indent($level) + ($value | tostring)
+        end
+    end;
+
+  def render_requirements($reqs):
+    if $reqs == null then "" else
+      ($reqs | map("- **" + (.title // .id // "Requirement") + "** (" + (.priority // "n/a") + ")\n  - " + (.description // "") +
+        (if .details then .details | map("    - " + .) | join("\n") | ("\n" + .) else "" end)
+      ) | join("\n"))
+    end;
+
+  def render_tasks($tasks):
+    if $tasks == null then "" else
+      ($tasks | map("- [" + (if .done then "x" else " " end) + "] " + (.name // "Task") + ": " + (.description // "")) | join("\n"))
+    end;
+
+  def render_notes($notes):
+    if $notes == null then "" else
+      ($notes | map("- " + .) | join("\n"))
+    end;
+
+  def render_any($value):
+    if $value == null then "" else
+      render_nested($value; 0)
+    end;
+
+  def get_spec:
+    ("specs." + $spec | split(".")) as $path
+    | try getpath($path)
+      catch error("Spec path " + $spec + " not found")
+    ;
+
+  get_spec as $specObj
+  | if $specObj == null then
+      error("Spec " + $spec + " not found")
+    else
+      "# Spec: " + $spec + "\n\n" +
+      section("Meta"; render_meta($specObj.__meta)) +
+      section("Problem"; render_any($specObj.problem)) +
+      section("Deliverables"; render_any($specObj.deliverables)) +
+      section("Requirements"; render_requirements($specObj.requirements)) +
+      section("Implementation"; render_any($specObj.implementation)) +
+      section("Workflow"; render_any($specObj.workflow)) +
+      section("Testing"; render_any($specObj.testing)) +
+      section("Tasks"; render_tasks($specObj.tasks)) +
+      section("Notes"; render_notes($specObj.notes))
+    end
+' "$JSON_FILE" > "$OUTPUT_MD"
