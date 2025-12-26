@@ -1460,6 +1460,177 @@
               "done": false
             }
           ]
+        },
+        "cli": {
+          "__meta": {
+            "type": "component",
+            "description": "Command-line utilities that provide deterministic automation for the jkspec worker",
+            "status": "active",
+            "tags": [
+              "cli",
+              "tooling",
+              "internal"
+            ],
+            "location": ".jkspec/cli"
+          },
+          "purpose": "Document every CLI helper the worker depends on so new tooling stays traceable and versioned with specs.",
+          "coverage": [
+            "Bootstrap developer environments (initialize.py)",
+            "Render Markdown inspection views after spec updates (make_md_view.sh)"
+          ],
+          "utilities": {
+            "initialize": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Python bootstrapper that provisions a virtual environment and installs project requirements",
+                "status": "active",
+                "tags": [
+                  "python",
+                  "bootstrap",
+                  "venv"
+                ]
+              },
+              "path": ".jkspec/cli/initialize.py",
+              "language": "python",
+              "entrypoint": "cd .jkspec/cli && python3 initialize.py [options]",
+              "capabilities": [
+                "Resolves the repository root automatically from the CLI directory",
+                "Creates or reuses a virtual environment (default .venv) using the supplied Python interpreter",
+                "Upgrades pip inside the managed environment",
+                "Installs dependencies from requirements.txt unless --skip-install is provided",
+                "Prints platform-aware activation instructions after provisioning",
+                "Defaults virtual environment location to .jkspec/cli/.venv",
+                "Requires running python3 initialize.py from the CLI directory whenever the environment must be created"
+              ],
+              "arguments": {
+                "--python": "Interpreter used to create the virtual environment (defaults to current Python).",
+                "--venv": "Target directory for the virtual environment; accepts relative or absolute paths.",
+                "--requirements": "Optional requirements file to install after creation.",
+                "--skip-install": "Skips dependency installation even when a requirements file exists.",
+                "--recreate": "Removes the existing environment before creating a fresh one."
+              },
+              "outputs": [
+                "Managed virtual environment located at the requested path",
+                "Logged subprocess commands for auditability"
+              ]
+            },
+            "make-md-view": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Bash + jq renderer that converts a spec into a Markdown inspection file",
+                "status": "active",
+                "tags": [
+                  "bash",
+                  "jq",
+                  "documentation"
+                ]
+              },
+              "path": ".jkspec/cli/make_md_view.sh",
+              "language": "bash",
+              "entrypoint": "bash .jkspec/cli/make_md_view.sh <spec-id> <json-file> <output-md>",
+              "capabilities": [
+                "Validates arguments and target JSON before rendering",
+                "Uses jq to extract the requested spec by path",
+                "Renders meta, problem, requirements, implementation, testing, tasks, and notes into Markdown",
+                "Creates the parent directory for the output file automatically",
+                "Exits with non-zero status when inputs are invalid"
+              ],
+              "requirements": [
+                "jq must be installed and available on PATH",
+                "Spec identifier must exist within the provided JSON file"
+              ],
+              "workflow": [
+                "Invoke after any spec creation or update",
+                "Write the Markdown output to .tmp/<spec-id>.md",
+                "Surface the generated path when reporting back to users"
+              ]
+            },
+            "get_all_pending_source_drafts": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Python helper that lists draft internal specs in source.json",
+                "status": "draft",
+                "tags": [
+                  "python",
+                  "analysis",
+                  "drafts"
+                ]
+              },
+              "path": ".jkspec/cli/get_all_pending_source_drafts.py",
+              "language": "python",
+              "entrypoint": "python3 .jkspec/cli/get_all_pending_source_drafts.py [options]",
+              "capabilities": [
+                "Reads .jkspec/source.json to find specs under __jkspec with __meta.status == \"draft\"",
+                "Emits dot-delimited spec paths for quick jq reuse",
+                "Supports batch mode so other scripts can parse structured JSON results"
+              ],
+              "arguments": {
+                "--repo-root": "Optional repository root override when running from subdirectories.",
+                "--pretty": "Return pretty-printed JSON array instead of newline separated values.",
+                "--strict": "Exit with non-zero when no drafts remain instead of printing nothing."
+              },
+              "requirements": [
+                "Python 3.10+ available on PATH",
+                "Read access to .jkspec/source.json",
+                "Agent must be in dev-mode before running this internal command"
+              ],
+              "outputs": [
+                "Stdout listing specs.__jkspec.components.<name> for each draft",
+                "Exit status 0 when drafts exist, 2 when none detected (unless --strict)",
+                "Non-zero exit on I/O or parsing errors"
+              ],
+              "notes": [
+                "Lives inside .jkspec/cli alongside other worker automation helpers",
+                "Intended to gate releases by surfacing unfinished internal specs"
+              ]
+            },
+            "get_all_pending_project_drafts": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Python helper that lists draft project specs in project.json",
+                "status": "draft",
+                "tags": [
+                  "python",
+                  "analysis",
+                  "project"
+                ]
+              },
+              "path": ".jkspec/cli/get_all_pending_project_drafts.py",
+              "language": "python",
+              "entrypoint": "python3 .jkspec/cli/get_all_pending_project_drafts.py [options]",
+              "capabilities": [
+                "Ensures .jkspec-project/project.json exists (creating the minimal template when missing)",
+                "Lists every user spec whose __meta.status == \"draft\"",
+                "Supports optional export of the draft list for downstream automation"
+              ],
+              "arguments": {
+                "--repo-root": "Optional repository root override when running from subdirectories.",
+                "--export": "Write JSON array of draft paths to the provided file.",
+                "--raw": "Force newline separated list for shell pipelines (default behavior)."
+              },
+              "requirements": [
+                "Python 3.10+ available on PATH",
+                ".jkspec-project/project.json present or creatable via worker bootstrap",
+                "Should run in standard mode when auditing project readiness"
+              ],
+              "outputs": [
+                "Dot-delimited spec paths like specs.project-component.feature-x",
+                "Exit status 0 when drafts exist, 2 when none detected",
+                "Non-zero exit on missing project file creation errors"
+              ],
+              "notes": [
+                "Pairs with get_all_pending_source_drafts so teams can audit both scopes",
+                "Must live in .jkspec/cli to keep tooling colocated with other automation scripts"
+              ]
+            }
+          },
+          "guidelines": [
+            "Add every new CLI helper to this component before exposing it to users or agents",
+            "Prefer cross-platform runtimes (Python or POSIX shell) and document platform assumptions",
+            "Run initialize.py before other tooling to guarantee dependencies are installed",
+            "Always execute make_md_view.sh immediately after modifying specs so reviewers have a Markdown snapshot",
+            "When provisioning tooling, cd into .jkspec/cli and run python3 initialize.py so the managed venv is created in-place."
+          ]
         }
       }
     }
