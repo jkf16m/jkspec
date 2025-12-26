@@ -307,7 +307,14 @@
             "Default spec queries MUST target .jkspec-project/project.json unless the user explicitly requests framework specs.",
             "Do not mention meta-specs or __jkspec components unless the user prompts for them.",
             "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec.",
-            "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user"
+            "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user",
+            "Task discovery: Use get_all_pending_source_drafts.py and get_all_pending_project_drafts.py to find all objects with status=draft, regardless of their location in the spec tree",
+            "Task prioritization: When implementing, sort discovered drafts by JSON path length (longest first) to prioritize leaf-node tasks over parent specs",
+            "Task flexibility: Any object with __meta.status=draft is a task - no specific field name required (can be in arrays like implementation_steps, requirements, test_cases, or anywhere)",
+            "Spec completeness rule: Every spec and nested component MUST have a __meta object when first created, with status explicitly set to draft or active",
+            "Status transition rule: A spec can only be marked as active when ALL its child components (nested objects, array items with __meta) are also marked as active",
+            "Upward propagation: When implementing leaf tasks, always check if completing them allows parent specs to transition from draft to active",
+            "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state"
           ],
           "complex_specs": {
             "description": "How to handle specs with multiple components",
@@ -373,7 +380,7 @@
                 "Check if .jkspec-project/project.json exists, create with minimal template if needed for user specs",
                 "Validate the spec-id follows kebab-case convention",
                 "Check if spec already exists: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>",
-                "Use jq to add the spec with full __meta payload and any requested fields",
+                "Use jq to add the spec with __meta object (REQUIRED: type, status=draft, description) and any requested fields or child components. All nested components must also have __meta with status.",
                 "Validate the modified file against schema: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
                 "Confirm success and show the added spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
               ]
@@ -384,7 +391,7 @@
                 "Identify the target spec and determine source file based on prefix",
                 "Read current spec structure incrementally to understand existing __meta, children, and tasks",
                 "Work with the user to pinpoint which areas need deeper coverage (e.g., break out children, add tasks, capture locations/dependencies)",
-                "Add or update nested child specs under keys like children/specs/tests with their own __meta objects",
+                "Add or update nested child specs or array items, ENSURING each has a __meta object with explicit status (draft or active). Parent spec status should remain draft if any children are draft.",
                 "Augment traceability fields (tasks array, dependencies, notes) to reflect the new depth",
                 "Update relevant statuses/tags if the spec maturity changes",
                 "Validate the modified file and show the updated portion of the spec"
@@ -399,14 +406,36 @@
             "implement": {
               "description": "Review all draft specs, select a target, and drive it to implementation",
               "steps": [
-                "List every draft spec across source.json and project.json using jq filters (status == \"draft\")",
-                "Present the draft list and pick the spec to implement (or ask the user to choose)",
-                "Read the chosen spec in detail, noting tasks, dependencies, and locations",
+                "Discover all pending drafts using get_all_pending_source_drafts.py and get_all_pending_project_drafts.py",
+                "Sort results by JSON path length (longest first) to prioritize most specific tasks",
+                "Present the draft list starting with leaf-node tasks, let user choose or pick the most specific",
+                "Read the chosen spec in detail, noting any nested tasks, dependencies, and implementation locations",
                 "Execute the implementation plan (code changes, tests, documentation) or spawn a subagent if complexity demands it",
-                "Update spec tasks and status (mark tasks done, set status to active when complete)",
-                "Validate the edited spec file and summarize the implementation outcome"
+                "Update the spec status from draft to active when complete. CHECK: all child components must be active before marking parent as active. Update upward through the tree.",
+                "Validate the edited spec file against schema and summarize the implementation outcome"
               ],
-              "draft_query": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" <file>"
+              "draft_discovery": {
+                "description": "Use CLI tools to find all pending drafts across both files",
+                "source_command": "python3 .jkspec/cli/get_all_pending_source_drafts.py",
+                "project_command": "python3 .jkspec/cli/get_all_pending_project_drafts.py",
+                "sorting": "Sort by path length descending - longest paths (most specific tasks) come first",
+                "rationale": "Leaf-node tasks are more concrete and easier to implement, building toward parent specs"
+              },
+              "task_pattern": {
+                "description": "Any object with __meta.status=draft is a task to be implemented",
+                "examples": [
+                  "Top-level spec with status=draft",
+                  "Nested array item with __meta.status=draft (e.g., implementation_steps, requirements, test_cases)",
+                  "Child component with status=draft"
+                ],
+                "flexibility": "Tasks can live anywhere in the spec tree - no specific field name required",
+                "discovery": "The get_all_pending_drafts commands find all draft objects regardless of location"
+              },
+              "__meta": {
+                "type": "command",
+                "status": "active",
+                "description": "Command definition for implementing draft specs using longest-path-first strategy"
+              }
             },
             "dev-mode": {
               "description": "Enter focused developer mode for modifying internal specs, defined as any component nested under __jkspec (i.e., __ prefixed jkspec infrastructure specs)",
@@ -449,17 +478,12 @@
           },
           "capabilities": {
             "management": [
-              "Add new specs (extend command)",
-              "Update existing specs (update command)",
-              "Validate jspec structure (validate command)",
-              "Analyze specs and provide recommendations (analyze command)",
-              "Suggest missing specs (suggest-specs command)",
-              "Verify implementation status (test-sync command)"
+              "Extend specs by adding new child components",
+              "Deepen specs by adding detail to existing components",
+              "Modify internal worker behavior via dev-mode"
             ],
             "implementation": [
-              "Read and explain spec details (explain command)",
-              "Implement specs according to requirements (implement command)",
-              "Verify implementations match specs (verify command)",
+              "Implement specs according to requirements",
               "Work with complex multi-component specs"
             ],
             "__meta": {
@@ -470,15 +494,10 @@
             "description": "Summary of management and implementation capabilities"
           },
           "commands": {
-            "extend": "Add a new spec to the jspec file",
-            "update": "Update an existing spec field",
-            "validate": "Validate the jspec structure and check for inconsistencies",
-            "analyze": "Analyze the current jkspec structure and provide recommendations",
-            "suggest-specs": "Suggest missing specs based on codebase analysis",
-            "test-sync": "Verify that all specs have corresponding implementations",
-            "implement": "Implement a spec according to its requirements",
-            "explain": "Read and explain a specific spec's details",
-            "verify": "Verify if a spec is implemented correctly",
+            "extend": "Add new child components to a spec",
+            "deepen": "Add detail to existing spec components",
+            "implement": "Turn draft specs into implementations",
+            "dev-mode": "Inspect and modify worker behavior for internal specs",
             "__meta": {
               "type": "reference",
               "description": "Mapping of command names to their functional purpose",
@@ -801,7 +820,47 @@
               "description": "Use make_md_view.sh to generate .tmp/<spec-id>.md after spec updates",
               "done": true
             }
-          ]
+          ],
+          "status_management": {
+            "description": "Rules for managing spec status transitions and ensuring spec completeness",
+            "core_principle": "Every layer of the spec tree must have explicit status tracking via __meta",
+            "rules": [
+              {
+                "name": "Creation rule",
+                "description": "Every spec and nested component MUST have __meta with status when created",
+                "applies_to": [
+                  "Top-level specs",
+                  "Nested components",
+                  "Array items that represent tasks/subtasks"
+                ]
+              },
+              {
+                "name": "Transition rule",
+                "description": "A parent can only be marked active when ALL children are active",
+                "example": "If user-auth has 3 child implementation_steps, user-auth stays draft until all 3 steps are active"
+              },
+              {
+                "name": "Upward propagation",
+                "description": "After marking a leaf task as active, check if parent can now transition",
+                "workflow": "Leaf → active, check siblings, if all active → parent → active, repeat up the tree"
+              },
+              {
+                "name": "Prevention rule",
+                "description": "Never leave specs without __meta or with ambiguous status",
+                "rationale": "Prevents AI from forgetting about incomplete work or creating unclear spec states"
+              }
+            ],
+            "status_values": {
+              "draft": "Not yet implemented - work pending",
+              "active": "Implemented and working - this component and ALL children complete",
+              "deprecated": "No longer in use"
+            },
+            "__meta": {
+              "type": "policy",
+              "status": "active",
+              "description": "Status management rules to prevent spec drift and ensure completeness tracking"
+            }
+          }
         },
         "traceability": {
           "__meta": {
