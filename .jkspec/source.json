@@ -411,6 +411,207 @@
               "note": "Worker reads command markdown files on-demand when executing specific commands"
             },
             "best_practice": "Prefer modifying worker JSON object for behavioral changes to avoid needing CLI resets. Reserve agent file modifications for fundamental structural changes."
+          },
+          "commands_definitions": {
+            "extend": {
+              "description": "Add a new spec to the jkspec file",
+              "steps": [
+                "Determine target file: If spec-id starts with __, use .jkspec/source.json (framework), otherwise use .jkspec-project/project.json (user project)",
+                "Check if .jkspec-project/project.json exists, create with minimal template if needed for user specs",
+                "Validate the spec-id follows kebab-case convention",
+                "Check if spec already exists: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>",
+                "Use jq to add the spec: jq \".specs[\\\"<spec-id>\\\"] = {__meta: {type: \\\"<type>\\\", description: \\\"<description>\\\", status: \\\"draft\\\", tags: [<tags>]}}\" <target-file> > tmp.json && mv tmp.json <target-file>",
+                "Validate the modified file against schema: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
+                "Confirm success and show the added spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
+              ]
+            },
+            "update": {
+              "description": "Update an existing spec field",
+              "steps": [
+                "Determine target file: If spec-id starts with __, use .jkspec/source.json, otherwise use .jkspec-project/project.json",
+                "Verify the spec exists: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>",
+                "Use jq to update the field: jq \".specs[\\\"<spec-id>\\\"].<field> = <value>\" <target-file> > tmp.json && mv tmp.json <target-file>",
+                "For __meta fields: jq \".specs[\\\"<spec-id>\\\"].__meta.<field> = <value>\" <target-file> > tmp.json && mv tmp.json <target-file>",
+                "Validate the modified file against schema: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
+                "Show the updated spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
+              ]
+            },
+            "validate": {
+              "description": "Validate the jkspec structure and check for inconsistencies",
+              "steps": [
+                "Validate .jkspec/source.json against schema: ajv validate -s .jkspec/jkspec.schema.json -d .jkspec/source.json --spec=draft2020 --strict=false",
+                "Check if .jkspec-project/project.json exists",
+                "If exists, validate .jkspec-project/project.json against schema: ajv validate -s .jkspec/jkspec.schema.json -d .jkspec-project/project.json --spec=draft2020 --strict=false",
+                "Get all spec IDs from both files: jq \".specs | keys\" for each file",
+                "Check required project fields exist: jq \".project\" for each file",
+                "For each spec, validate required __meta fields (type, description, status, tags)",
+                "Check for kebab-case naming in spec IDs",
+                "Verify no duplicate spec IDs across both files",
+                "Verify __ prefix specs only exist in source.json",
+                "Report any issues found or confirm validity"
+              ],
+              "validation_checks": [
+                "All spec IDs follow kebab-case convention",
+                "No duplicate spec IDs across files",
+                "Required __meta fields present (type, description, status, tags)",
+                "Project metadata is complete in both files",
+                "Internal specs (__ prefix) only in source.json",
+                "Schema validation passes for both files"
+              ]
+            },
+            "analyze": {
+              "description": "Analyze the current jkspec structure and provide recommendations",
+              "steps": [
+                "Get all spec IDs from source.json: jq \".specs | keys\" .jkspec/source.json",
+                "Get all spec IDs from project.json if exists: jq \".specs | keys\" .jkspec-project/project.json",
+                "Count total specs by type: jq \".specs | to_entries[] | .value.__meta.type\" for each file",
+                "Identify specs with draft status: jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" for each file",
+                "Check for missing descriptions or empty fields",
+                "Analyze tag usage: jq \".specs | to_entries[] | .value.__meta.tags[]?\" for each file",
+                "Check if project metadata is complete for both files",
+                "Provide actionable recommendations"
+              ],
+              "analysis_areas": [
+                "Coverage: Spec count by type (api, model, component, service, etc.)",
+                "Completeness: Missing or incomplete fields",
+                "Status: Distribution of draft/active/deprecated specs",
+                "Tags: Tag usage patterns and suggestions",
+                "Project Health: Overall project metadata quality",
+                "File Distribution: Framework vs project specs separation"
+              ]
+            },
+            "suggest-specs": {
+              "description": "Suggest missing specs based on codebase analysis",
+              "steps": [
+                "Get existing spec IDs from both files: jq \".specs | keys\" for source.json and project.json",
+                "Analyze the codebase structure using glob and grep tools",
+                "Search for API endpoints (routes, controllers, handlers)",
+                "Find model/schema definitions (classes, interfaces, types)",
+                "Locate component files (React, Vue, Angular components)",
+                "Identify service modules (business logic, data access)",
+                "Look for undocumented APIs, models, components, services",
+                "Compare against existing specs",
+                "Suggest new specs with ready-to-run jq commands"
+              ],
+              "suggestion_format": {
+                "spec_id": "kebab-case identifier",
+                "type": "api, model, component, service, etc.",
+                "description": "Brief description of what it does",
+                "location": "file path where implemented",
+                "command": "jq command to add the spec to project.json"
+              }
+            },
+            "test-sync": {
+              "description": "Verify that all specs are actually implemented in the codebase",
+              "steps": [
+                "Get all spec IDs from source.json: jq \".specs | keys\" .jkspec/source.json",
+                "Get all spec IDs from project.json if exists: jq \".specs | keys\" .jkspec-project/project.json",
+                "For each spec, read details: jq \".specs[\\\"<spec-id>\\\"]\" from appropriate file",
+                "Check if location field is specified",
+                "Verify location field points to existing files using file system checks",
+                "Check status field (draft/active/deprecated)",
+                "Check for tasks array and done status if present",
+                "Generate comprehensive implementation report",
+                "Suggest actions for missing implementations"
+              ],
+              "report_format": {
+                "spec_id": "The identifier",
+                "status": "draft | active | deprecated",
+                "location": "File path if specified",
+                "implemented": "✓ Yes | ✗ No | ⚠ Partial",
+                "tasks_status": "X/Y tasks completed (if tasks array exists)",
+                "action": "Suggested next step"
+              }
+            },
+            "implement": {
+              "description": "Implement a spec according to its requirements",
+              "steps": [
+                "Determine target file and read the spec: jq \".specs[\\\"<spec-id>\\\"]\" from source.json or project.json",
+                "Understand requirements: type, description, purpose, location, dependencies",
+                "Check for child specs or sub-components (children, specs, tests, components keys)",
+                "Check if spec has complexity: high or subagent_required: true",
+                "If complex or subagent required, spawn subagent using Task tool with full spec context",
+                "Otherwise, break down spec into implementation tasks",
+                "Implement code/files according to spec requirements",
+                "If spec has tasks array, mark tasks as done: jq \".specs[\\\"<spec-id>\\\"].tasks[<index>].done = true\"",
+                "Update spec status when complete: jq \".specs[\\\"<spec-id>\\\"].__meta.status = \\\"active\\\"\"",
+                "Validate the modified file: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
+                "Report what was implemented"
+              ],
+              "implementation_strategy": {
+                "simple_specs": "Implement directly as single unit",
+                "complex_specs": "Break into sub-tasks, implement systematically, or spawn subagent",
+                "dependencies": "Implement dependencies first",
+                "testing": "Add tests if specified in spec",
+                "subagent_usage": "Use Task tool for high complexity specs with subagent_required: true"
+              }
+            },
+            "explain": {
+              "description": "Read and explain a specific spec details",
+              "steps": [
+                "Determine which file contains the spec based on prefix",
+                "Read the spec: jq \".specs[\\\"<spec-id>\\\"]\" from appropriate file",
+                "Extract and explain all relevant details"
+              ],
+              "explanation_format": {
+                "id": "The spec identifier",
+                "type": "Category (api, model, component, etc.)",
+                "description": "What it does",
+                "location": "Where it is implemented (if specified)",
+                "status": "Current state (draft/active/deprecated)",
+                "tags": "Associated labels",
+                "dependencies": "Other specs it relies on (if specified)",
+                "children": "Sub-components or related specs (if any)",
+                "tasks": "Implementation tasks and their status (if tasks array exists)",
+                "additional_fields": "Any custom fields specific to this spec"
+              },
+              "presentation": "Present the information in a clear, structured format that is easy to understand"
+            },
+            "verify": {
+              "description": "Verify if a spec is implemented correctly",
+              "steps": [
+                "Determine target file and read spec requirements: jq \".specs[\\\"<spec-id>\\\"]\" from appropriate file",
+                "Check if implementation exists at specified location (if location field present)",
+                "Verify implementation matches requirements",
+                "Check if all tasks are done (if tasks array exists): jq \".specs[\\\"<spec-id>\\\"].tasks[] | select(.done == false)\"",
+                "Verify dependencies are satisfied",
+                "Check for tests if specified",
+                "Report compliance or discrepancies"
+              ],
+              "verification_checks": [
+                "File Exists: Implementation file is present at location",
+                "Structure: Matches spec type requirements",
+                "Functionality: Core features implemented",
+                "Dependencies: Required dependencies satisfied",
+                "Tasks: All tasks marked as done (if tasks array exists)",
+                "Tests: Test coverage adequate (if specified)",
+                "Documentation: Inline docs present"
+              ],
+              "report_format": {
+                "overall": "✓ Pass | ✗ Fail | ⚠ Partial",
+                "details": "Specific compliance/discrepancy notes",
+                "recommendations": "Suggested improvements"
+              }
+            },
+            "sync": {
+              "description": "Ensure jkspec is in sync with actual codebase structure",
+              "steps": [
+                "Get all spec IDs from both files: jq \".specs | keys\" for source.json and project.json",
+                "For each spec, read details: jq \".specs[\\\"<spec-id>\\\"]\" from appropriate file",
+                "Verify referenced code/files still exist (check location fields)",
+                "Check for deprecated or removed code references",
+                "Use glob and grep to look for new code that should have specs",
+                "Compare codebase structure with existing specs",
+                "Report discrepancies and offer updates"
+              ],
+              "sync_checks": [
+                "File Existence: Verify location fields point to existing files",
+                "Deprecated Code: Check if referenced code has been removed",
+                "New Code: Find new code without specs",
+                "Status Accuracy: Ensure active/deprecated status matches reality",
+                "Orphaned Specs: Specs referencing non-existent code"
+              ]
+            }
           }
         },
         "traceability": {
@@ -1044,7 +1245,7 @@
       "description": "On initialization, agent must read the worker object which contains all operational definitions"
     },
     "commands_location": ".opencode/command",
-    "commands_description": "All jkspec-worker commands are defined as individual markdown files in .opencode/commands/ directory. Each command file contains description, steps, and additional context.",
+    "commands_description": "All jkspec-worker commands are defined as minimal markdown files in .opencode/command/ directory. Each command file references a jq query to fetch the full command definition from .jkspec/source.json at .specs.__jkspec.components.worker.commands_definitions.<command-name>",
     "available_commands": [
       "jkspec-extend",
       "jkspec-update",
@@ -1124,6 +1325,12 @@
         "Update spec status and tasks array after subagent completes work"
       ],
       "example_workflow": "1. Read spec with jq\n2. Check complexity and subagent_required fields\n3. If needed, use Task tool to spawn subagent with full spec context\n4. Subagent implements according to spec requirements\n5. Worker verifies implementation and updates spec status"
+    },
+    "greeting": {
+      "style": "minimal",
+      "message": "Initialized and ready.",
+      "include_commands_list": false,
+      "rationale": "Keep greeting concise - user can ask for help if needed"
     }
   }
 }
