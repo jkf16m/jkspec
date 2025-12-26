@@ -249,7 +249,7 @@
         },
         "worker": {
           "bootstrap": {
-            "first_command": "jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == \"object\" then .description else . end))' .jkspec/source.json",
+            "first_command": "python3 .jkspec/cli/bootstrap.py",
             "description": "On initialization, agent must read the worker object which contains all operational definitions",
             "__meta": {
               "type": "config",
@@ -1527,13 +1527,14 @@
               },
               "path": ".jkspec/cli/make_md_view.sh",
               "language": "bash",
-              "entrypoint": "bash .jkspec/cli/make_md_view.sh <spec-id> <json-file> <output-md>",
+              "entrypoint": "bash .jkspec/cli/make_md_view.sh [spec-id] [json-file] [output-md]",
               "capabilities": [
                 "Validates arguments and target JSON before rendering",
                 "Uses jq to extract the requested spec by path",
                 "Renders meta, problem, requirements, implementation, testing, tasks, and notes into Markdown",
                 "Creates the parent directory for the output file automatically",
-                "Exits with non-zero status when inputs are invalid"
+                "Exits with non-zero status when inputs are invalid",
+                "Works with zero arguments using sensible defaults for agent invocation"
               ],
               "requirements": [
                 "jq must be installed and available on PATH",
@@ -1543,13 +1544,18 @@
                 "Invoke after any spec creation or update",
                 "Write the Markdown output to .tmp/<spec-id>.md",
                 "Surface the generated path when reporting back to users"
-              ]
+              ],
+              "arguments": {
+                "spec-id": "Spec identifier (defaults to __jkspec.components.cli)",
+                "json-file": "Source JSON file (defaults to .jkspec/source.json)",
+                "output-md": "Output Markdown path (defaults to .tmp/<spec-id>.md)"
+              }
             },
             "get_all_pending_source_drafts": {
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft internal specs in source.json",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "analysis",
@@ -1558,21 +1564,12 @@
               },
               "path": ".jkspec/cli/get_all_pending_source_drafts.py",
               "language": "python",
-              "entrypoint": "python3 .jkspec/cli/get_all_pending_source_drafts.py [options]",
+              "entrypoint": "python3 .jkspec/cli/get_all_pending_source_drafts.py",
               "capabilities": [
                 "Reads .jkspec/source.json to find specs under __jkspec with __meta.status == \"draft\"",
                 "Emits dot-delimited spec paths for quick jq reuse",
-                "Supports batch mode so other scripts can parse structured JSON results"
-              ],
-              "arguments": {
-                "--repo-root": "Optional repository root override when running from subdirectories.",
-                "--pretty": "Return pretty-printed JSON array instead of newline separated values.",
-                "--strict": "Exit with non-zero when no drafts remain instead of printing nothing."
-              },
-              "requirements": [
-                "Python 3.10+ available on PATH",
-                "Read access to .jkspec/source.json",
-                "Agent must be in dev-mode before running this internal command"
+                "Supports batch mode so other scripts can parse structured JSON results",
+                "Works with zero arguments - prints draft spec paths to stdout"
               ],
               "outputs": [
                 "Stdout listing specs.__jkspec.components.<name> for each draft",
@@ -1588,7 +1585,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft project specs in project.json",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "analysis",
@@ -1597,21 +1594,12 @@
               },
               "path": ".jkspec/cli/get_all_pending_project_drafts.py",
               "language": "python",
-              "entrypoint": "python3 .jkspec/cli/get_all_pending_project_drafts.py [options]",
+              "entrypoint": "python3 .jkspec/cli/get_all_pending_project_drafts.py",
               "capabilities": [
                 "Ensures .jkspec-project/project.json exists (creating the minimal template when missing)",
                 "Lists every user spec whose __meta.status == \"draft\"",
-                "Supports optional export of the draft list for downstream automation"
-              ],
-              "arguments": {
-                "--repo-root": "Optional repository root override when running from subdirectories.",
-                "--export": "Write JSON array of draft paths to the provided file.",
-                "--raw": "Force newline separated list for shell pipelines (default behavior)."
-              },
-              "requirements": [
-                "Python 3.10+ available on PATH",
-                ".jkspec-project/project.json present or creatable via worker bootstrap",
-                "Should run in standard mode when auditing project readiness"
+                "Supports optional export of the draft list for downstream automation",
+                "Works with zero arguments - prints draft spec paths to stdout"
               ],
               "outputs": [
                 "Dot-delimited spec paths like specs.project-component.feature-x",
@@ -1622,6 +1610,29 @@
                 "Pairs with get_all_pending_source_drafts so teams can audit both scopes",
                 "Must live in .jkspec/cli to keep tooling colocated with other automation scripts"
               ]
+            },
+            "bootstrap": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Python wrapper that executes the worker bootstrap first_command to initialize agent context",
+                "status": "active",
+                "tags": [
+                  "python",
+                  "bootstrap",
+                  "context"
+                ]
+              },
+              "path": ".jkspec/cli/bootstrap.py",
+              "language": "python",
+              "entrypoint": "python3 .jkspec/cli/bootstrap.py",
+              "purpose": "Execute the first_command from worker.bootstrap config to display worker overview for agent initialization",
+              "capabilities": [
+                "Runs the jq command defined in specs.__jkspec.components.worker.bootstrap.first_command",
+                "Outputs high-level worker configuration overview (descriptions only, not full nested objects)",
+                "Provides agents with context about available commands, policies, and guidelines",
+                "Works with zero arguments - simply outputs worker JSON to stdout"
+              ],
+              "implementation": "Executes: jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == \"object\" then .description else . end))' .jkspec/source.json"
             }
           },
           "guidelines": [
@@ -1629,7 +1640,10 @@
             "Prefer cross-platform runtimes (Python or POSIX shell) and document platform assumptions",
             "Run initialize.py before other tooling to guarantee dependencies are installed",
             "Always execute make_md_view.sh immediately after modifying specs so reviewers have a Markdown snapshot",
-            "When provisioning tooling, cd into .jkspec/cli and run python3 initialize.py so the managed venv is created in-place."
+            "When provisioning tooling, cd into .jkspec/cli and run python3 initialize.py so the managed venv is created in-place.",
+            "CLI utilities MUST NOT require arguments - all parameters should have sensible defaults to allow zero-config invocation by agents",
+            "Optional flags (--output, --show-config, etc.) are permitted for advanced use cases, but the tool must work correctly when called with no arguments",
+            "Agents should be able to invoke any CLI utility with just: python3 .jkspec/cli/<script>.py"
           ]
         }
       }

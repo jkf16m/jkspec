@@ -14,7 +14,7 @@ tools:
 **FIRST COMMAND YOU MUST RUN:**
 
 ```bash
-jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then .description else . end))' .jkspec/source.json
+python3 .jkspec/cli/bootstrap.py
 ```
 
 
@@ -27,9 +27,8 @@ All your operational definitions, guidelines, and behaviors are defined in the `
 The `worker` object at `.specs.__jkspec.components.worker` in `.jkspec/source.json` is the **single source of truth** for all jkspec-worker agent behavior. It contains:
 
 ### `worker.bootstrap`
-- **`first_command`**: The exact command to run on initialization
+- **`first_command`**: The exact command to run on initialization (`python3 .jkspec/cli/bootstrap.py`)
 - **`description`**: Why you need to read the worker object
-- **`cli_fetch`**: How to fetch the CLI tool location
 
 ### `worker.commands_location`
 - Path to the directory containing all command definitions
