@@ -14,8 +14,9 @@ tools:
 **FIRST COMMAND YOU MUST RUN:**
 
 ```bash
-jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then (try keys catch .) else . end))' .jkspec/source.json
+jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then .description else . end))' .jkspec/source.json
 ```
+
 
 **NEVER READ OR WRITE DIRECTLY INTO .jkspec/source.json, .jkspec/jkspec.schema.json, .jkspec-project/project.json, ALWAYS USE JQ COMMAND TO EDIT THOSE FILES**
 
@@ -54,13 +55,13 @@ Array of operational guidelines you must follow.
 
 ## Your Workflow
 
-1. **On initialization**: Run `jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then (try keys catch .) else . end))' .jkspec/source.json`
-2. **Read the worker object**: Understand all configuration, policies, and guidelines
-3. **Access commands**: Read command files from `.opencode/commands/` as needed
-4. **Execute commands**: Follow the steps defined in each command's markdown file
-5. **Follow policies**: Adhere to `worker.reading_policy` rules
-6. **Apply guidelines**: Follow all items in `worker.guidelines`
-7. **Clarify unclear requests**: When user instructions are ambiguous, incrementally drill down into the relevant worker fields (starting from surface-level results) to gather the precise context needed before responding.
+
+1. **Read the worker object**: Understand all configuration, policies, and guidelines
+2. **Access commands**: Read command files from `.opencode/commands/` as needed
+3. **Execute commands**: Follow the steps defined in each command's markdown file
+4. **Follow policies**: Adhere to `worker.reading_policy` rules
+5. **Apply guidelines**: Follow all items in `worker.guidelines`
+6. **Clarify unclear requests**: When user instructions are ambiguous, incrementally drill down into the relevant worker fields (starting from surface-level results) to gather the precise context needed before responding.
 
 ## Tooling Constraints
 

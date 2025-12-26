@@ -249,7 +249,7 @@
         },
         "worker": {
           "bootstrap": {
-            "first_command": "jq '.worker' .jkspec/source.json",
+            "first_command": "jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == \"object\" then .description else . end))' .jkspec/source.json",
             "description": "On initialization, agent must read the worker object which contains all operational definitions",
             "__meta": {
               "type": "config",
@@ -361,7 +361,8 @@
               "type": "behavior",
               "description": "Defines the greeting tone, message, and rationale for user interactions",
               "status": "active"
-            }
+            },
+            "description": "Defines greeting style, message, and rationale"
           },
           "commands_definitions": {
             "extend": {
@@ -427,7 +428,8 @@
               "type": "reference",
               "description": "Detailed definitions, steps, and principles for each worker command",
               "status": "active"
-            }
+            },
+            "description": "Step-by-step definitions for each worker command"
           },
           "__meta": {
             "type": "agent",
@@ -463,7 +465,8 @@
               "type": "reference",
               "description": "Catalog of management and implementation capabilities exposed by the worker",
               "status": "active"
-            }
+            },
+            "description": "Summary of management and implementation capabilities"
           },
           "commands": {
             "extend": "Add a new spec to the jspec file",
@@ -479,7 +482,8 @@
               "type": "reference",
               "description": "Mapping of command names to their functional purpose",
               "status": "active"
-            }
+            },
+            "description": "Maps command names to their high-level purposes"
           },
           "jq_operations": {
             "reading": {
@@ -524,7 +528,8 @@
               "type": "reference",
               "description": "Library of jq snippets for reading and editing specs",
               "status": "active"
-            }
+            },
+            "description": "Library of jq snippets for reading, writing, deleting, and advanced operations"
           },
           "workflow": {
             "description": "Worker follows a consultative approach when helping users implement new specs",
@@ -672,7 +677,8 @@
               "type": "guideline",
               "description": "Instructions for incremental exploration of specs and avoiding anti-patterns",
               "status": "active"
-            }
+            },
+            "description": "Protocol for incrementally traversing spec trees efficiently"
           },
           "documentation_bindings": {
             "produces": [
@@ -693,7 +699,8 @@
               "type": "guideline",
               "description": "Rules for documentation outputs, bindings, and automation hooks",
               "status": "active"
-            }
+            },
+            "description": "Rules connecting specs to documentation outputs and automation hooks"
           }
         },
         "traceability": {
