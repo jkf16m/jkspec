@@ -2620,6 +2620,114 @@
               "status": "active",
               "description": "Utilities",
               "goal": "All child components marked as active"
+            },
+            "spec-to-md": {
+              "__meta": {
+                "type": "cli-tool",
+                "description": "Cross-platform Python script that renders any JSON path into readable Markdown for human review",
+                "status": "active",
+                "tags": [
+                  "python",
+                  "markdown",
+                  "readability",
+                  "cross-platform"
+                ],
+                "goal": "Script implemented, tested, and working"
+              },
+              "path": ".jkspec/cli/spec-to-md.py",
+              "language": "python",
+              "entrypoint": "python3 .jkspec/cli/spec-to-md.py [json-file] [json-path] [output-md]",
+              "purpose": "Generate human-readable Markdown files from any JSON spec path to enable change review after spec modifications",
+              "use_cases": [
+                "Review full picture after extending or modifying specs",
+                "Generate documentation for specific spec components",
+                "Create readable snapshots of complex nested specs",
+                "Support cross-platform documentation workflows"
+              ],
+              "capabilities": [
+                "Works with any JSON file and arbitrary JSON paths",
+                "Renders nested objects, arrays, and scalars into structured Markdown",
+                "Handles __meta objects with special formatting",
+                "Creates parent directories for output files automatically",
+                "Zero-argument invocation with sensible defaults for agent workflows",
+                "Cross-platform Python implementation (no bash dependencies)",
+                "Validates JSON file existence before processing",
+                "Provides clear error messages for invalid paths"
+              ],
+              "arguments": {
+                "json-file": {
+                  "description": "Path to JSON file to read",
+                  "default": ".jkspec/source.json",
+                  "required": false
+                },
+                "json-path": {
+                  "description": "Dot-notation path to the object to render (e.g., specs.__jkspec.components.worker)",
+                  "default": "specs.__jkspec.components.cli",
+                  "required": false
+                },
+                "output-md": {
+                  "description": "Output Markdown file path",
+                  "default": ".tmp/<sanitized-json-path>.md",
+                  "required": false
+                },
+                "__meta": {
+                  "status": "active",
+                  "description": "Arguments specification",
+                  "goal": "Arguments defined and documented"
+                }
+              },
+              "workflow": [
+                "Agent modifies or extends a spec using jkspec-worker commands",
+                "Agent invokes spec-to-md.py with the modified spec path",
+                "Script generates readable Markdown view in .tmp/",
+                "Agent shares the .tmp/ path with user for review",
+                "User reviews changes in human-readable format"
+              ],
+              "implementation_requirements": {
+                "parsing": "Use json.loads() to read JSON file",
+                "path_resolution": "Split json-path by dots and traverse nested structure",
+                "rendering": {
+                  "meta_objects": "Format __meta with status, description, type, tags prominently",
+                  "nested_objects": "Render as markdown sections with appropriate heading levels",
+                  "arrays": "Render as bullet lists or numbered items with nested content",
+                  "scalars": "Display inline or as code blocks for longer strings",
+                  "heading_levels": {
+                    "description": "Caps heading levels at 6 (Markdown limit), then uses nested lists",
+                    "levels_1_to_6": "Use standard markdown headings (# through ######)",
+                    "levels_7_plus": "Switch to nested bullet lists with increasing indentation",
+                    "rationale": "Markdown only supports 6 heading levels - nested lists maintain hierarchy while respecting the spec"
+                  }
+                },
+                "error_handling": [
+                  "File not found: Exit with code 2 and clear error message",
+                  "Invalid JSON: Exit with code 3 and parsing error details",
+                  "Path not found: Exit with code 4 and show available top-level keys",
+                  "Output directory creation failure: Exit with code 5"
+                ],
+                "__meta": {
+                  "status": "active",
+                  "description": "Implementation requirements",
+                  "goal": "Requirements documented and ready for implementation"
+                }
+              },
+              "outputs": [
+                "Markdown file at specified output path",
+                "Success message with output file location to stdout",
+                "Exit status 0 on success, non-zero on errors"
+              ],
+              "differences_from_make_md_view": [
+                "Cross-platform Python instead of bash + jq",
+                "Works with any JSON path, not just full specs",
+                "Simpler interface: just 3 arguments",
+                "More flexible: can render partial objects or arrays",
+                "Better for automation: consistent error codes",
+                "Designed for change review, not just inspection"
+              ],
+              "integration": {
+                "worker_commands": "jkspec-extend, jkspec-deepen, jkspec-implement should auto-invoke after modifications",
+                "documentation_bindings": "Update worker.documentation_bindings to include spec-to-md automation policy",
+                "validation": "jkspec-validate can check if modified specs have corresponding .tmp/ MD files"
+              }
             }
           },
           "guidelines": [
