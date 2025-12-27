@@ -61,11 +61,17 @@ def include_project_spec(path: List[str]) -> bool:
 
 def main() -> None:
     data = ensure_project_file(PROJECT_PATH)
-    draft_paths = sorted(
+    
+    # Convert to dot-delimited strings
+    draft_paths = [
         ".".join(path)
         for path in iter_draft_paths(data, [])
         if include_project_spec(path)
-    )
+    ]
+    
+    # Sort by path length (most specific first = longest path = most dots)
+    # Then alphabetically for same length
+    draft_paths.sort(key=lambda p: (-p.count('.'), p))
 
     for entry in draft_paths:
         print(entry)

@@ -6,7 +6,12 @@
     "architecture": {
       "style": "single-file specification",
       "pattern": "spec-driven development",
-      "philosophy": "Provide AI agents with structured, queryable context to eliminate codebase exploration overhead"
+      "philosophy": "Provide AI agents with structured, queryable context to eliminate codebase exploration overhead",
+      "__meta": {
+        "status": "draft",
+        "description": "Architectural overview and structure",
+        "goal": "Architecture fields (style, pattern, philosophy) documented and reflect current state"
+      }
     },
     "conventions": {
       "spec_location": ".jkspec/source.json",
@@ -15,7 +20,12 @@
       "internal_specs": "Specs prefixed with __ are internal/meta specs (e.g., '__jkspec')",
       "versioning": "Semantic versioning for the spec format itself",
       "dual_file_architecture": "Framework specs stay in .jkspec/source.json. All user specs MUST live in .jkspec-project/project.json (auto-created on bootstrap).",
-      "schema_validation": "Both files validate against .jkspec/jkspec.schema.json using ajv"
+      "schema_validation": "Both files validate against .jkspec/jkspec.schema.json using ajv",
+      "__meta": {
+        "status": "draft",
+        "description": "Coding and organizational conventions",
+        "goal": "All jkspec conventions documented and enforced by tooling"
+      }
     },
     "decisions": [
       {
@@ -25,7 +35,12 @@
         "date": "2025-12-25",
         "context": "AI agents waste time exploring codebases. Need fast, precise context retrieval.",
         "decision": "Use single .jkspec/source.json file with structured data, queryable via jq",
-        "consequences": "Agents get instant context. Must maintain spec alongside code. JSON parsing overhead minimal."
+        "consequences": "Agents get instant context. Must maintain spec alongside code. JSON parsing overhead minimal.",
+        "__meta": {
+          "status": "draft",
+          "description": "Decisions",
+          "goal": "ADR-001 documented with context, decision, and consequences"
+        }
       },
       {
         "id": "ADR-002",
@@ -34,7 +49,12 @@
         "date": "2025-12-25",
         "context": "Need to avoid duplicate keys and enable direct access",
         "decision": "Use object with unique keys for specs: {\"spec-name\": {...}}",
-        "consequences": "Direct access via jq '.specs[\"name\"]'. Natural key uniqueness. Slightly more verbose queries for filtering."
+        "consequences": "Direct access via jq '.specs[\"name\"]'. Natural key uniqueness. Slightly more verbose queries for filtering.",
+        "__meta": {
+          "status": "draft",
+          "description": "Decisions",
+          "goal": "ADR-002 documented with context, decision, and consequences"
+        }
       },
       {
         "id": "ADR-003",
@@ -43,7 +63,12 @@
         "date": "2025-12-25",
         "context": "Need to distinguish internal jkspec infrastructure from user specs",
         "decision": "Prefix internal/meta specs with __ (double underscore) to clearly mark them as part of jkspec itself",
-        "consequences": "Users can easily identify and avoid modifying internal specs. Clear separation of concerns between framework and user content."
+        "consequences": "Users can easily identify and avoid modifying internal specs. Clear separation of concerns between framework and user content.",
+        "__meta": {
+          "status": "draft",
+          "description": "Decisions",
+          "goal": "ADR-003 documented with context, decision, and consequences"
+        }
       },
       {
         "id": "ADR-004",
@@ -52,7 +77,12 @@
         "date": "2025-12-25",
         "context": "CLI tool adds complexity and maintenance burden. AI agents are fluent in jq. Direct manipulation is more transparent.",
         "decision": "Remove jkspec CLI tool. Use jq directly for all read/write operations on .jkspec/source.json",
-        "consequences": "Simpler architecture with fewer moving parts. Agent can see exact jq commands. Users learn standard jq instead of custom CLI. Slightly more verbose operations but more transparent and flexible."
+        "consequences": "Simpler architecture with fewer moving parts. Agent can see exact jq commands. Users learn standard jq instead of custom CLI. Slightly more verbose operations but more transparent and flexible.",
+        "__meta": {
+          "status": "draft",
+          "description": "Decisions",
+          "goal": "ADR-004 documented with context, decision, and consequences"
+        }
       },
       {
         "id": "ADR-005",
@@ -61,34 +91,46 @@
         "date": "2025-12-25",
         "context": "Users need to update jkspec tooling without affecting their project data. Currently .jkspec/source.json mixes framework specs (__jkspec) with project specs, making updates risky and cumbersome.",
         "decision": "Split into two files: .jkspec/source.json (framework only with __jkspec specs) and .jkspec-project/project.json (user project specs). Both use the same schema. Agents check for .jkspec-project/ on init and create if missing.",
-        "consequences": "Users can update jkspec by deleting .jkspec/ and cloning fresh. Project data in .jkspec-project/project.json remains safe. Commands must implement file selection logic based on spec-id prefix. Slightly more complex for agents but much cleaner separation of concerns."
+        "consequences": "Users can update jkspec by deleting .jkspec/ and cloning fresh. Project data in .jkspec-project/project.json remains safe. Commands must implement file selection logic based on spec-id prefix. Slightly more complex for agents but much cleaner separation of concerns.",
+        "__meta": {
+          "status": "draft",
+          "description": "Decisions",
+          "goal": "ADR-005 documented with context, decision, and consequences"
+        }
       }
-    ]
+    ],
+    "__meta": {
+      "status": "draft",
+      "description": "Project-level metadata and configuration",
+      "goal": "All child components marked as active"
+    }
   },
   "specs": {
     "__jkspec": {
       "__meta": {
         "type": "meta",
         "description": "Internal jkspec system specification - contains all jkspec infrastructure components",
-        "status": "active",
+        "status": "draft",
         "tags": [
           "internal",
           "meta",
           "jkspec-system"
         ],
-        "note": "This is an internal spec. User specs should not use the __ prefix."
+        "note": "This is an internal spec. User specs should not use the __ prefix.",
+        "goal": "All child components marked as active"
       },
       "components": {
         "format": {
           "__meta": {
             "type": "specification",
             "description": "The jkspec format itself - structure and conventions",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "meta",
               "format"
             ],
-            "location": ".jkspec/source.json"
+            "location": ".jkspec/source.json",
+            "goal": "All child components marked as active"
           },
           "structure": {
             "project": {
@@ -97,7 +139,12 @@
               "version": "string - semver",
               "architecture": "object - architectural overview",
               "conventions": "object - global coding and organizational conventions",
-              "decisions": "array - architectural decision records"
+              "decisions": "array - architectural decision records",
+              "__meta": {
+                "status": "draft",
+                "description": "Project-level metadata and configuration",
+                "goal": "Configuration properly defined and documented"
+              }
             },
             "specs": {
               "description": "object - keyed by unique spec identifier",
@@ -117,10 +164,22 @@
                     "complexity": "string - low, medium, high - indicates implementation complexity",
                     "subagent_required": "boolean - true if spec is complex enough to warrant spawning a dedicated subagent for implementation"
                   },
-                  "description": "All specs must have a __meta object with at minimum the core fields. Optional fields provide additional context and control."
+                  "description": "All specs must have a __meta object with at minimum the core fields. Optional fields provide additional context and control.",
+                  "status": "draft",
+                  "goal": "Structure defined and documented"
                 },
                 "...": "any additional fields relevant to the spec"
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Collection of jkspec specifications",
+                "goal": "All child components marked as active"
               }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Structural definition",
+              "goal": "All child components marked as active"
             }
           },
           "examples": {
@@ -130,7 +189,12 @@
             "get_spec_meta": "jq \".specs[\\\"spec-name\\\"].__meta\" .jkspec/source.json",
             "filter_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type==\\\"api\\\")\" .jkspec/source.json",
             "filter_by_tag": "jq \".specs | to_entries[] | select(.value.__meta.tags[]? == \\\"authentication\\\")\" .jkspec/source.json",
-            "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json"
+            "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json",
+            "__meta": {
+              "status": "draft",
+              "description": "Example specifications",
+              "goal": "Example provided and working"
+            }
           },
           "hierarchical_specifications": {
             "description": "Specs can contain nested child specifications at any depth using arbitrary keys",
@@ -145,9 +209,19 @@
             "status_lifecycle": {
               "draft": "Specification not yet implemented",
               "active": "Specification fully implemented and working",
-              "deprecated": "Specification no longer in use"
+              "deprecated": "Specification no longer in use",
+              "__meta": {
+                "status": "draft",
+                "description": "Status lifecycle",
+                "goal": "Concept documented with examples"
+              }
             },
-            "philosophy": "Instead of redoing implementations, refine specs by adding more detailed child specifications to achieve more accurate results"
+            "philosophy": "Instead of redoing implementations, refine specs by adding more detailed child specifications to achieve more accurate results",
+            "__meta": {
+              "status": "draft",
+              "description": "Hierarchical specifications",
+              "goal": "All child components marked as active"
+            }
           },
           "nested_examples": {
             "simple_nesting": {
@@ -158,9 +232,20 @@
                   "__meta": {
                     "type": "specification",
                     "description": "The jkspec format specification",
-                    "status": "active"
+                    "status": "draft",
+                    "goal": "Example provided and working"
                   }
+                },
+                "__meta": {
+                  "status": "draft",
+                  "description": "Children",
+                  "goal": "All child components marked as active"
                 }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Simple nesting",
+                "goal": "All child components marked as active"
               }
             },
             "deep_nesting": {
@@ -171,28 +256,56 @@
                   "__meta": {
                     "type": "api",
                     "description": "Authentication API",
-                    "status": "active"
+                    "status": "draft",
+                    "goal": "All child components marked as active"
                   },
                   "endpoints": {
                     "login": {
                       "__meta": {
                         "type": "endpoint",
                         "description": "Login endpoint",
-                        "status": "active"
+                        "status": "draft",
+                        "goal": "All child components marked as active"
                       },
                       "validations": {
                         "email-format": {
                           "__meta": {
                             "type": "validation",
                             "description": "Email format validation",
-                            "status": "active"
+                            "status": "draft",
+                            "goal": "Structure defined and documented"
                           }
+                        },
+                        "__meta": {
+                          "status": "draft",
+                          "description": "Validations",
+                          "goal": "All child components marked as active"
                         }
                       }
+                    },
+                    "__meta": {
+                      "status": "draft",
+                      "description": "Endpoints",
+                      "goal": "All child components marked as active"
                     }
                   }
+                },
+                "__meta": {
+                  "status": "draft",
+                  "description": "Structural definition",
+                  "goal": "All child components marked as active"
                 }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Deep nesting",
+                "goal": "All child components marked as active"
               }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Nested examples",
+              "goal": "All child components marked as active"
             }
           },
           "jq_editing_examples": {
@@ -206,7 +319,12 @@
             "add_task": "jq \".specs[\\\"spec-id\\\"].tasks += [{name: \\\"Task name\\\", description: \\\"Task description\\\", done: false}]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
             "mark_task_done": "jq \".specs[\\\"spec-id\\\"].tasks[0].done = true\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
             "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
-            "add_data_field": "jq \".specs[\\\"spec-id\\\"].custom_data = {key: \\\"value\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+            "add_data_field": "jq \".specs[\\\"spec-id\\\"].custom_data = {key: \\\"value\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+            "__meta": {
+              "status": "draft",
+              "description": "Jq editing examples",
+              "goal": "Example provided and working"
+            }
           },
           "documentation_bindings": {
             "readme_spec": "__jkspec.components.readme-documentation",
@@ -217,28 +335,44 @@
             ],
             "implementation_output": "README.md",
             "update_trigger": "When format spec status is draft, keep readme-documentation in draft until README reflects new structural rules.",
-            "rationale": "Format spec defines core structure and jq usage guidance that surface in README sections."
+            "rationale": "Format spec defines core structure and jq usage guidance that surface in README sections.",
+            "__meta": {
+              "status": "draft",
+              "description": "Documentation bindings",
+              "goal": "All format-to-documentation bindings defined with update triggers"
+            }
           }
         },
         "depth-system": {
           "__meta": {
             "type": "feature",
             "description": "Single unified agent architecture where jkspec-worker handles all operations from high-level management to detailed implementation",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "architecture",
               "unified-agent"
             ],
             "purpose": "Simplified architecture with one agent that can handle any jkspec task",
-            "location": ".opencode/agent/"
+            "location": ".opencode/agent/",
+            "goal": "All child components marked as active"
           },
           "concepts": {
             "spec_levels": {
               "simple": "Single file, small component, or focused investigation",
               "medium": "Module, service, or feature with multiple files",
-              "complex": "System, architecture, or large-scale feature spanning multiple modules"
+              "complex": "System, architecture, or large-scale feature spanning multiple modules",
+              "__meta": {
+                "status": "draft",
+                "description": "Spec levels",
+                "goal": "Concept documented with examples"
+              }
             },
-            "unified_approach": "Single agent handles both management operations (add/update/validate specs) and implementation work (read/implement/verify specs)"
+            "unified_approach": "Single agent handles both management operations (add/update/validate specs) and implementation work (read/implement/verify specs)",
+            "__meta": {
+              "status": "draft",
+              "description": "Core concepts",
+              "goal": "All child components marked as active"
+            }
           },
           "agent_responsibilities": {
             "jkspec-worker": "Handles ALL operations: extends specs, validates structure, analyzes codebase, implements features, explains specs, and verifies implementations"
@@ -254,7 +388,8 @@
             "__meta": {
               "type": "config",
               "description": "Defines initialization steps and first command executed when the worker starts",
-              "status": "active"
+              "status": "draft",
+              "goal": "Configuration defined and applied"
             }
           },
           "commands_location": ".opencode/command",
@@ -275,7 +410,12 @@
               "get_worker_config": "jq \".worker\" .jkspec/source.json",
               "get_project_info": "jq \".project\" .jkspec/source.json",
               "filter_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type == \\\"api\\\")\" .jkspec/source.json",
-              "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json"
+              "filter_by_status": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Common operations",
+                "goal": "Policy defined and documented"
+              }
             },
             "best_practices": [
               "Always use tmp.json pattern when modifying: jq '...' file.json > tmp.json && mv tmp.json file.json",
@@ -287,7 +427,8 @@
             "__meta": {
               "type": "policy",
               "description": "Explains how the worker reads and modifies specs using jq",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             }
           },
           "guidelines": [
@@ -308,13 +449,14 @@
             "Do not mention meta-specs or __jkspec components unless the user prompts for them.",
             "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec.",
             "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user",
-            "Task discovery: Use get_all_pending_source_drafts.py and get_all_pending_project_drafts.py to find all objects with status=draft, regardless of their location in the spec tree",
+            "Spec completeness rule: Every spec and nested component MUST have a __meta object with REQUIRED fields: status and description (type is optional but recommended)",
             "Task prioritization: When implementing, sort discovered drafts by JSON path length (longest first) to prioritize leaf-node tasks over parent specs",
             "Task flexibility: Any object with __meta.status=draft is a task - no specific field name required (can be in arrays like implementation_steps, requirements, test_cases, or anywhere)",
             "Spec completeness rule: Every spec and nested component MUST have a __meta object when first created, with status explicitly set to draft or active",
             "Status transition rule: A spec can only be marked as active when ALL its child components (nested objects, array items with __meta) are also marked as active",
             "Upward propagation: When implementing leaf tasks, always check if completing them allows parent specs to transition from draft to active",
-            "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state"
+            "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state",
+            "Spec definition: Any object with __meta is a spec - no specific field name required, can exist anywhere in the tree"
           ],
           "complex_specs": {
             "description": "How to handle specs with multiple components",
@@ -328,7 +470,8 @@
             "__meta": {
               "type": "guideline",
               "description": "Guidance for handling multi-component or deeply nested specifications",
-              "status": "active"
+              "status": "draft",
+              "goal": "Guidance documented with approach steps and examples"
             }
           },
           "subagent_policy": {
@@ -344,7 +487,12 @@
               "use_task_tool": "Use the Task tool to spawn general-purpose subagent",
               "provide_full_spec": "Pass complete spec details to subagent including all requirements, tasks, and constraints",
               "clear_instructions": "Give subagent explicit instructions on what to implement and how to verify correctness",
-              "result_reporting": "Subagent should report back implementation status and any issues encountered"
+              "result_reporting": "Subagent should report back implementation status and any issues encountered",
+              "__meta": {
+                "status": "draft",
+                "description": "How to spawn",
+                "goal": "Policy defined and documented"
+              }
             },
             "worker_responsibilities": [
               "Read and understand spec before spawning subagent",
@@ -357,7 +505,8 @@
             "__meta": {
               "type": "policy",
               "description": "Rules for when and how the worker should spawn subagents",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             }
           },
           "greeting": {
@@ -368,7 +517,8 @@
             "__meta": {
               "type": "behavior",
               "description": "Defines the greeting tone, message, and rationale for user interactions",
-              "status": "active"
+              "status": "draft",
+              "goal": "Configuration defined and applied"
             },
             "description": "Defines greeting style, message, and rationale"
           },
@@ -383,7 +533,12 @@
                 "Use jq to add the spec with __meta object (REQUIRED: type, status=draft, description) and any requested fields or child components. All nested components must also have __meta with status.",
                 "Validate the modified file against schema: ajv validate -s .jkspec/jkspec.schema.json -d <target-file> --spec=draft2020 --strict=false",
                 "Confirm success and show the added spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Extend",
+                "goal": "Command fully defined with steps and examples"
+              }
             },
             "deepen": {
               "description": "Transform a shallow spec into a richer hierarchy by adding detailed child specs, tasks, or metadata",
@@ -401,7 +556,12 @@
                 "Add validation/test children for APIs",
                 "Use tasks array to document implementation steps",
                 "Attach location/dependency metadata for each new child"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Deepen",
+                "goal": "Command fully defined with steps and examples"
+              }
             },
             "implement": {
               "description": "Review all draft specs, select a target, and drive it to implementation",
@@ -419,7 +579,12 @@
                 "source_command": "python3 .jkspec/cli/get_all_pending_source_drafts.py",
                 "project_command": "python3 .jkspec/cli/get_all_pending_project_drafts.py",
                 "sorting": "Sort by path length descending - longest paths (most specific tasks) come first",
-                "rationale": "Leaf-node tasks are more concrete and easier to implement, building toward parent specs"
+                "rationale": "Leaf-node tasks are more concrete and easier to implement, building toward parent specs",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Draft discovery",
+                  "goal": "Command fully defined with steps and examples"
+                }
               },
               "task_pattern": {
                 "description": "Any object with __meta.status=draft is a task to be implemented",
@@ -429,12 +594,18 @@
                   "Child component with status=draft"
                 ],
                 "flexibility": "Tasks can live anywhere in the spec tree - no specific field name required",
-                "discovery": "The get_all_pending_drafts commands find all draft objects regardless of location"
+                "discovery": "The get_all_pending_drafts commands find all draft objects regardless of location",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Task pattern",
+                  "goal": "Command fully defined with steps and examples"
+                }
               },
               "__meta": {
                 "type": "command",
-                "status": "active",
-                "description": "Command definition for implementing draft specs using longest-path-first strategy"
+                "status": "draft",
+                "description": "Command definition for implementing draft specs using longest-path-first strategy",
+                "goal": "All child components marked as active"
               }
             },
             "dev-mode": {
@@ -452,19 +623,25 @@
                 "Reference modification_policy expectations before changing internal behavior",
                 "Document rationale for internal changes in the response",
                 "Never query or access project specs (.jkspec-project/project.json) while in dev-mode; limit interactions strictly to internal __-prefixed specs."
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Dev mode",
+                "goal": "Command fully defined with steps and examples"
+              }
             },
             "__meta": {
               "type": "reference",
               "description": "Detailed definitions, steps, and principles for each worker command",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             },
             "description": "Step-by-step definitions for each worker command"
           },
           "__meta": {
             "type": "agent",
             "description": "Unified agent for managing and implementing jkspec specifications - handles both high-level management operations and detailed implementation work",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "ai-agents",
               "management",
@@ -474,7 +651,8 @@
             "location": ".opencode/agent/jkspec-worker.md",
             "dependencies": [
               "jq"
-            ]
+            ],
+            "goal": "All child components marked as active"
           },
           "capabilities": {
             "management": [
@@ -489,7 +667,8 @@
             "__meta": {
               "type": "reference",
               "description": "Catalog of management and implementation capabilities exposed by the worker",
-              "status": "active"
+              "status": "draft",
+              "goal": "All worker capabilities cataloged in management and implementation lists"
             },
             "description": "Summary of management and implementation capabilities"
           },
@@ -501,7 +680,8 @@
             "__meta": {
               "type": "reference",
               "description": "Mapping of command names to their functional purpose",
-              "status": "active"
+              "status": "draft",
+              "goal": "All available commands mapped to their functional descriptions"
             },
             "description": "Maps command names to their high-level purposes"
           },
@@ -515,7 +695,12 @@
               "list_specs_by_type": "jq \".specs | to_entries[] | select(.value.__meta.type == \\\"api\\\") | .key\" .jkspec/source.json",
               "list_specs_by_tag": "jq \".specs | to_entries[] | select(.value.__meta.tags[]? == \\\"backend\\\") | .key\" .jkspec/source.json",
               "get_all_draft_specs": "jq \".specs | to_entries[] | select(.value.__meta.status == \\\"draft\\\")\" .jkspec/source.json",
-              "get_project_info": "jq \".project\" .jkspec/source.json"
+              "get_project_info": "jq \".project\" .jkspec/source.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Reading",
+                "goal": "Operations documented with examples"
+              }
             },
             "writing": {
               "add_spec": "jq \".specs[\\\"new-spec\\\"] = {__meta: {type: \\\"component\\\", description: \\\"Description\\\", status: \\\"draft\\\", tags: []}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
@@ -523,14 +708,24 @@
               "add_data_field": "jq \".specs[\\\"spec-id\\\"].new_field = \\\"value\\\"\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "add_nested_spec": "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"] = {__meta: {type: \\\"type\\\", description: \\\"desc\\\", status: \\\"draft\\\"}}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "add_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags += [\\\"new-tag\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
-              "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+              "update_multiple_meta": "jq \".specs[\\\"spec-id\\\"].__meta |= . + {status: \\\"active\\\", location: \\\"path/to/file\\\"}\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Writing",
+                "goal": "Operations documented with examples"
+              }
             },
             "deleting": {
               "remove_spec": "jq \"del(.specs[\\\"spec-id\\\"])\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "remove_nested": "jq \"del(.specs[\\\"parent\\\"].children[\\\"child\\\"])\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "remove_data_field": "jq \"del(.specs[\\\"spec-id\\\"].field_name)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
               "remove_tag": "jq \".specs[\\\"spec-id\\\"].__meta.tags -= [\\\"tag-to-remove\\\"]\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
-              "remove_meta_field": "jq \"del(.specs[\\\"spec-id\\\"].__meta.field_name)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json"
+              "remove_meta_field": "jq \"del(.specs[\\\"spec-id\\\"].__meta.field_name)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Deleting",
+                "goal": "Operations documented with examples"
+              }
             },
             "advanced": {
               "conditional_update": "jq \".specs |= with_entries(if .value.__meta.status == \\\"draft\\\" then .value.__meta.status = \\\"reviewed\\\" else . end)\" .jkspec/source.json > tmp.json && mv tmp.json .jkspec/source.json",
@@ -541,13 +736,24 @@
                 "description": "List dot-delimited JSON paths for every draft spec",
                 "project_command": "jq -r \"paths(objects | select(has(\\\"__meta\\\") and .__meta.status == \\\"draft\\\")) | map(tostring) | join(\\\".\\\")\" .jkspec-project/project.json",
                 "dev_mode_command": "jq -r \"paths(objects | select(has(\\\"__meta\\\") and .__meta.status == \\\"draft\\\")) | select(.[0] == \\\"specs\\\" and .[1] == \\\"__jkspec\\\") | map(tostring) | join(\\\".\\\")\" .jkspec/source.json",
-                "usage_notes": "Always run the project command first (covers user specs). Only run the dev mode command when explicitly working on __ prefixed internal specs inside source.json."
+                "usage_notes": "Always run the project command first (covers user specs). Only run the dev mode command when explicitly working on __ prefixed internal specs inside source.json.",
+                "__meta": {
+                  "status": "draft",
+                  "description": "List draft paths",
+                  "goal": "Operations documented with examples"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Advanced",
+                "goal": "All child components marked as active"
               }
             },
             "__meta": {
               "type": "reference",
               "description": "Library of jq snippets for reading and editing specs",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             },
             "description": "Library of jq snippets for reading, writing, deleting, and advanced operations"
           },
@@ -568,7 +774,12 @@
                   "What is the expected behavior or implementation details?"
                 ],
                 "approach": "Ask questions conversationally, not as a checklist. Adapt based on user responses and spec type.",
-                "goal": "Gather complete understanding before proposing any spec structure"
+                "goal": "Gather complete understanding before proposing any spec structure",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Phase 1 gather requirements",
+                  "goal": "Rationale clearly documented and reviewed"
+                }
               },
               "phase_2_propose_draft": {
                 "description": "Once all details are clear, propose a complete draft spec structure",
@@ -576,7 +787,12 @@
                   "Show the proposed JSON structure to the user",
                   "Explain the structure and any design decisions",
                   "Ask for confirmation or adjustments"
-                ]
+                ],
+                "__meta": {
+                  "status": "draft",
+                  "description": "Phase 2 propose draft",
+                  "goal": "Rationale clearly documented and reviewed"
+                }
               },
               "phase_3_write_spec": {
                 "description": "After user approval, write the spec to source.json",
@@ -585,14 +801,25 @@
                   "Validate the JSON structure",
                   "Confirm successful creation",
                   "Show the final spec to the user"
-                ]
+                ],
+                "__meta": {
+                  "status": "draft",
+                  "description": "Phase 3 write spec",
+                  "goal": "Rationale clearly documented and reviewed"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "New spec creation",
+                "goal": "All child components marked as active"
               }
             },
             "philosophy": "Measure twice, cut once - thorough understanding before implementation prevents rework",
             "__meta": {
               "type": "process",
               "description": "Prescribed workflow for creating and updating specs",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             }
           },
           "context_management": {
@@ -607,21 +834,37 @@
               "worker_config": "jq '.worker' .jkspec/source.json",
               "project_overview": "jq '.project' .jkspec/source.json",
               "spec_list": "jq '.specs | keys' .jkspec/source.json",
-              "spec_first_level": "jq '.specs | with_entries(.value |= {__meta})' .jkspec/source.json"
+              "spec_first_level": "jq '.specs | with_entries(.value |= {__meta})' .jkspec/source.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Bootstrap queries",
+                "goal": "Bootstrap logic implemented and tested"
+              }
             },
             "selective_deepening": {
               "description": "Only query deeper levels when specific information is needed",
               "examples": {
                 "when_needed": "User asks to implement a specific spec",
                 "query_pattern": "jq '.specs[\"specific-spec\"]' .jkspec/source.json",
-                "nested_when_needed": "jq '.specs[\"parent\"].children[\"child\"]' .jkspec/source.json"
+                "nested_when_needed": "jq '.specs[\"parent\"].children[\"child\"]' .jkspec/source.json",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Example specifications",
+                  "goal": "Example provided and working"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Selective deepening",
+                "goal": "All child components marked as active"
               }
             },
             "rationale": "Maintains efficient context window usage by loading only necessary information. Worker starts with high-level overview and drills down selectively rather than loading entire nested structures.",
             "__meta": {
               "type": "policy",
               "description": "Strategy for incremental context gathering and selective deepening",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             }
           },
           "modification_policy": {
@@ -637,7 +880,12 @@
                 "Adding workflow steps",
                 "Changing context management strategy"
               ],
-              "agent_behavior": "Worker reads .worker on initialization via bootstrap command, so changes take effect immediately on next invocation"
+              "agent_behavior": "Worker reads .worker on initialization via bootstrap command, so changes take effect immediately on next invocation",
+              "__meta": {
+                "status": "draft",
+                "description": "Json modifications",
+                "goal": "Structure defined and documented"
+              }
             },
             "agent_file_modifications": {
               "scope": "Changes to .opencode/agent/jkspec-worker.md agent definition file",
@@ -649,19 +897,30 @@
                 "Updating tool access patterns",
                 "Altering core agent behavior"
               ],
-              "reset_procedure": "Restart or reinitialize the CLI agent tooling to reload the agent definition file"
+              "reset_procedure": "Restart or reinitialize the CLI agent tooling to reload the agent definition file",
+              "__meta": {
+                "status": "draft",
+                "description": "Agent file modifications",
+                "goal": "Policy defined and documented"
+              }
             },
             "command_file_modifications": {
               "scope": "Changes to individual command files in .opencode/commands/",
               "impact": "Does NOT require CLI reset (similar to JSON modifications)",
               "reason": "Command files are read dynamically when commands are invoked",
-              "note": "Worker reads command markdown files on-demand when executing specific commands"
+              "note": "Worker reads command markdown files on-demand when executing specific commands",
+              "__meta": {
+                "status": "draft",
+                "description": "Command file modifications",
+                "goal": "Policy defined and documented"
+              }
             },
             "best_practice": "Prefer modifying worker JSON object for behavioral changes to avoid needing CLI resets. Reserve agent file modifications for fundamental structural changes.",
             "__meta": {
               "type": "policy",
               "description": "Guidance for editing worker JSON, agent files, and command files",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             }
           },
           "incremental_traversal": {
@@ -685,7 +944,12 @@
                 "jq \".specs[\\\"parent\\\"].children | keys\" - List child specs",
                 "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"] | keys\" - See child structure",
                 "jq \".specs[\\\"parent\\\"].children[\\\"child\\\"].__meta.status\" - Get specific nested field"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Example specifications",
+                "goal": "Example provided and working"
+              }
             },
             "anti_patterns": [
               "Reading entire .specs object when you only need keys",
@@ -696,7 +960,8 @@
             "__meta": {
               "type": "guideline",
               "description": "Instructions for incremental exploration of specs and avoiding anti-patterns",
-              "status": "active"
+              "status": "draft",
+              "goal": "All child components marked as active"
             },
             "description": "Protocol for incrementally traversing spec trees efficiently"
           },
@@ -718,7 +983,8 @@
             "__meta": {
               "type": "guideline",
               "description": "Rules for documentation outputs, bindings, and automation hooks",
-              "status": "active"
+              "status": "draft",
+              "goal": "Rule implemented and enforced"
             },
             "description": "Rules connecting specs to documentation outputs and automation hooks"
           },
@@ -733,7 +999,8 @@
               ],
               "created": "2025-12-26T05:51:56Z",
               "updated": "2025-12-26T05:51:56Z",
-              "description": "Ensure workers generate Markdown inspection views for every new or updated spec using the dedicated CLI tool"
+              "description": "Ensure workers generate Markdown inspection views for every new or updated spec using the dedicated CLI tool",
+              "goal": "All child components marked as active"
             },
             "problem": {
               "context": "Specs live as JSON which is hard for users to skim right after creation.",
@@ -742,7 +1009,12 @@
                 "Fresh specs may contain mistakes that go unnoticed without a readable view",
                 "There is no automated habit enforcing view generation"
               ],
-              "goal": "Provide an immediate, human-readable Markdown snapshot for each spec change."
+              "goal": "Provide an immediate, human-readable Markdown snapshot for each spec change.",
+              "__meta": {
+                "status": "draft",
+                "description": "Problem",
+                "goal": "Rationale clearly documented and reviewed"
+              }
             },
             "deliverables": {
               "cli_tool": {
@@ -753,12 +1025,27 @@
                   "Gracefully handle missing optional sections by skipping them",
                   "Create parent directories for the output path automatically",
                   "Exit with non-zero status on invalid input"
-                ]
+                ],
+                "__meta": {
+                  "status": "draft",
+                  "description": "Cli tool",
+                  "goal": "Deliverable completed and verified"
+                }
               },
               "worker_guideline": {
                 "description": "Operational rule instructing workers to render Markdown views immediately after writing or updating a spec.",
                 "output_location": ".tmp/<spec-id>.md",
-                "rationale": "Keeps review loop tight and gives users a document they can open without tooling"
+                "rationale": "Keeps review loop tight and gives users a document they can open without tooling",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Worker guideline",
+                  "goal": "Guideline documented and followed"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Deliverables",
+                "goal": "All child components marked as active"
               }
             },
             "requirements": [
@@ -766,19 +1053,34 @@
                 "id": "req-cli-view",
                 "title": "CLI Markdown renderer",
                 "priority": "critical",
-                "description": "Implement make_md_view.sh to convert spec JSON into a Markdown document with sections for meta, problem, requirements, implementation, testing, tasks, and notes."
+                "description": "Implement make_md_view.sh to convert spec JSON into a Markdown document with sections for meta, problem, requirements, implementation, testing, tasks, and notes.",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Requirements specification",
+                  "goal": "Requirement defined and satisfied"
+                }
               },
               {
                 "id": "req-tmp-folder",
                 "title": "Temporary inspection workspace",
                 "priority": "high",
-                "description": "Ensure a top-level .tmp directory exists and always house rendered Markdown files there using the <spec-id>.md naming pattern."
+                "description": "Ensure a top-level .tmp directory exists and always house rendered Markdown files there using the <spec-id>.md naming pattern.",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Requirements specification",
+                  "goal": "Requirement defined and satisfied"
+                }
               },
               {
                 "id": "req-workflow",
                 "title": "Post-spec workflow",
                 "priority": "high",
-                "description": "Immediately after adding or editing a spec, export the spec JSON to a temp file and run the CLI to generate the Markdown view, then surface the output path in responses."
+                "description": "Immediately after adding or editing a spec, export the spec JSON to a temp file and run the CLI to generate the Markdown view, then surface the output path in responses.",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Requirements specification",
+                  "goal": "Requirement defined and satisfied"
+                }
               }
             ],
             "workflow": {
@@ -790,23 +1092,34 @@
                 "Run .jkspec/cli/make_md_view.sh <spec-id> <json-path> .tmp/<spec-id>.md",
                 "Reference the generated Markdown path in the user-facing summary"
               ],
-              "automation_notes": "Future automation can watch .tmp for stale files and regenerate automatically"
+              "automation_notes": "Future automation can watch .tmp for stale files and regenerate automatically",
+              "__meta": {
+                "status": "draft",
+                "description": "Workflow",
+                "goal": "Rationale clearly documented and reviewed"
+              }
             },
             "tasks": [
               {
-                "name": "Create CLI tool",
-                "description": "Author make_md_view.sh with jq-based Markdown rendering",
-                "done": false
+                "__meta": {
+                  "status": "draft",
+                  "description": "Author make_md_view.sh with jq-based Markdown rendering",
+                  "goal": "Task completed and verified"
+                }
               },
               {
-                "name": "Add worker guideline",
-                "description": "Append rule requiring Markdown view generation for each new/updated spec",
-                "done": false
+                "__meta": {
+                  "status": "draft",
+                  "description": "Append rule requiring Markdown view generation for each new/updated spec",
+                  "goal": "Rule implemented and enforced"
+                }
               },
               {
-                "name": "Demonstrate sample output",
-                "description": "Generate a Markdown file for the latest spec to show the workflow",
-                "done": false
+                "__meta": {
+                  "status": "draft",
+                  "description": "Generate a Markdown file for the latest spec to show the workflow",
+                  "goal": "Task completed and verified"
+                }
               }
             ],
             "notes": [
@@ -816,9 +1129,11 @@
           },
           "tasks": [
             {
-              "name": "Render Markdown view for latest spec",
-              "description": "Use make_md_view.sh to generate .tmp/<spec-id>.md after spec updates",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Use make_md_view.sh to generate .tmp/<spec-id>.md after spec updates",
+                "goal": "Task completed and verified"
+              }
             }
           ],
           "status_management": {
@@ -832,57 +1147,116 @@
                   "Top-level specs",
                   "Nested components",
                   "Array items that represent tasks/subtasks"
-                ]
+                ],
+                "__meta": {
+                  "status": "draft",
+                  "description": "Rule definitions",
+                  "goal": "Definition complete and validated"
+                }
               },
               {
                 "name": "Transition rule",
                 "description": "A parent can only be marked active when ALL children are active",
-                "example": "If user-auth has 3 child implementation_steps, user-auth stays draft until all 3 steps are active"
+                "example": "If user-auth has 3 child implementation_steps, user-auth stays draft until all 3 steps are active",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Rule definitions",
+                  "goal": "Definition complete and validated"
+                }
               },
               {
                 "name": "Upward propagation",
                 "description": "After marking a leaf task as active, check if parent can now transition",
-                "workflow": "Leaf → active, check siblings, if all active → parent → active, repeat up the tree"
+                "workflow": "Leaf \u2192 active, check siblings, if all active \u2192 parent \u2192 active, repeat up the tree",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Rule definitions",
+                  "goal": "Definition complete and validated"
+                }
               },
               {
                 "name": "Prevention rule",
                 "description": "Never leave specs without __meta or with ambiguous status",
-                "rationale": "Prevents AI from forgetting about incomplete work or creating unclear spec states"
+                "rationale": "Prevents AI from forgetting about incomplete work or creating unclear spec states",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Rule definitions",
+                  "goal": "Definition complete and validated"
+                }
               }
             ],
             "status_values": {
               "draft": "Not yet implemented - work pending",
               "active": "Implemented and working - this component and ALL children complete",
-              "deprecated": "No longer in use"
+              "deprecated": "No longer in use",
+              "__meta": {
+                "status": "draft",
+                "description": "Status values",
+                "goal": "Values defined and documented"
+              }
             },
             "__meta": {
               "type": "policy",
-              "status": "active",
-              "description": "Status management rules to prevent spec drift and ensure completeness tracking"
+              "status": "draft",
+              "description": "Status management rules to prevent spec drift and ensure completeness tracking",
+              "goal": "All child components marked as active"
             }
+          },
+          "spec_definition": {
+            "__meta": {
+              "status": "draft",
+              "description": "Defines what constitutes a spec in jkspec",
+              "goal": "Definition clearly documented and understood by all agents"
+            },
+            "core_principle": "Any object with a __meta object is a spec",
+            "required_fields": {
+              "status": "Implementation status (draft/active/deprecated)",
+              "description": "What this spec describes",
+              "goal": "Completion criteria - when to mark this spec as active"
+            },
+            "optional_fields": {
+              "type": "Spec type for categorization (api, component, feature, etc.)",
+              "tags": "Searchable tags",
+              "location": "File path where implemented",
+              "dependencies": "List of dependencies"
+            },
+            "recognition": "Agents identify specs by presence of __meta, regardless of field name or location in tree"
           }
         },
         "traceability": {
           "__meta": {
             "type": "meta-guideline",
             "description": "Guideline for creating traceable specs with implementation status tracking using task arrays",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "meta",
               "guideline",
               "traceability"
             ],
-            "purpose": "Define a standardized pattern for tracking implementation tasks within specs to ensure clear traceability between specification and actual code"
+            "purpose": "Define a standardized pattern for tracking implementation tasks within specs to ensure clear traceability between specification and actual code",
+            "goal": "All child components marked as active"
           },
           "concept": "When creating code-related specs, include a tasks array where each element is a task object containing name, description, and done status",
           "pattern": {
             "tasks": {
               "description": "Array of task objects",
               "task_structure": {
-                "name": "string - Short name for the task",
-                "description": "string - Detailed description of what needs to be done",
-                "done": "boolean - false when not implemented, true when implemented"
+                "__meta": {
+                  "status": "draft",
+                  "description": "string - Detailed description of what needs to be done",
+                  "goal": "Structure defined and documented"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Tasks",
+                "goal": "All child components marked as active"
               }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Pattern",
+              "goal": "All child components marked as active"
             }
           },
           "rationale": "Provides granular tracking of implementation progress with self-documenting task objects, enables clear verification of spec completion, maintains natural ordering, and keeps traceability between requirements and code",
@@ -892,25 +1266,37 @@
               "__meta": {
                 "type": "api",
                 "description": "Example REST API endpoint",
-                "status": "draft"
+                "status": "draft",
+                "goal": "All child components marked as active"
               },
               "tasks": [
                 {
-                  "name": "Create handler",
-                  "description": "Create endpoint handler function",
-                  "done": false
+                  "__meta": {
+                    "status": "draft",
+                    "description": "Create endpoint handler function",
+                    "goal": "Task completed and verified"
+                  }
                 },
                 {
-                  "name": "Add validation",
-                  "description": "Add input validation for request parameters",
-                  "done": false
+                  "__meta": {
+                    "status": "draft",
+                    "description": "Add input validation for request parameters",
+                    "goal": "Task completed and verified"
+                  }
                 },
                 {
-                  "name": "Write tests",
-                  "description": "Write unit tests for the endpoint",
-                  "done": false
+                  "__meta": {
+                    "status": "draft",
+                    "description": "Write unit tests for the endpoint",
+                    "goal": "Task completed and verified"
+                  }
                 }
               ]
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Example spec",
+              "goal": "All child components marked as active"
             }
           },
           "best_practices": [
@@ -934,14 +1320,15 @@
           "__meta": {
             "type": "documentation",
             "description": "README.md documentation for jkspec project with vision, advantages, disadvantages, and buy-me-a-coffee support button",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "documentation",
               "meta",
               "readme"
             ],
             "location": "README.md",
-            "purpose": "Provide clear, honest documentation about jkspec as a prototype with potential for agent-driven development"
+            "purpose": "Provide clear, honest documentation about jkspec as a prototype with potential for agent-driven development",
+            "goal": "All child components marked as active"
           },
           "sections": {
             "header": {
@@ -959,7 +1346,12 @@
             "prototype_notice": {
               "description": "Transparent notice that this is a prototype",
               "tone": "honest and encouraging",
-              "content_draft": "⚠️ **This is a prototype.** jkspec is an experiment in improving AI agent workflows. It's rough around the edges, the conventions are still evolving, and there are likely better ways to solve some of these problems.\n\nThat said, I've found it genuinely useful in my own agent-assisted development, and I believe the core idea has potential. If you're interested in exploring new ways to work with AI coding assistants, give it a try. Feedback, ideas, and constructive criticism are welcome."
+              "content_draft": "\u26a0\ufe0f **This is a prototype.** jkspec is an experiment in improving AI agent workflows. It's rough around the edges, the conventions are still evolving, and there are likely better ways to solve some of these problems.\n\nThat said, I've found it genuinely useful in my own agent-assisted development, and I believe the core idea has potential. If you're interested in exploring new ways to work with AI coding assistants, give it a try. Feedback, ideas, and constructive criticism are welcome.",
+              "__meta": {
+                "status": "draft",
+                "description": "Prototype notice",
+                "goal": "Section written, reviewed, and published"
+              }
             },
             "advantages": {
               "description": "Key advantages of using jkspec",
@@ -996,7 +1388,12 @@
                   "title": "Agent-Optimized",
                   "description": "Designed specifically for AI agent consumption, not just human documentation"
                 }
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Advantages",
+                "goal": "Section written, reviewed, and published"
+              }
             },
             "disadvantages": {
               "description": "Honest assessment of current limitations and tradeoffs",
@@ -1029,7 +1426,12 @@
                   "title": "No Schema Validation Yet",
                   "description": "While a schema exists, enforcement and validation tooling is minimal"
                 }
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Disadvantages",
+                "goal": "Section written, reviewed, and published"
+              }
             },
             "quick_start": {
               "description": "Basic quick start instructions",
@@ -1044,7 +1446,7 @@
                 },
                 {
                   "name": "Status Lifecycle",
-                  "description": "draft → active → deprecated"
+                  "description": "draft \u2192 active \u2192 deprecated"
                 },
                 {
                   "name": "Hierarchical Structure",
@@ -1058,7 +1460,12 @@
                   "name": "jq Queries",
                   "description": "Direct JSON manipulation using jq for all read/write operations"
                 }
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Core concepts",
+                "goal": "Section written, reviewed, and published"
+              }
             },
             "examples": {
               "description": "Practical jq examples",
@@ -1079,7 +1486,12 @@
                   "description": "Filter by type",
                   "command": "jq .specs | to_entries[] | select(.value.__meta.type == \"api\") .jkspec/source.json"
                 }
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Example specifications",
+                "goal": "Example provided and working"
+              }
             },
             "use_cases": {
               "description": "When jkspec might be useful",
@@ -1089,80 +1501,119 @@
                 "Need structured, queryable project documentation",
                 "Exploring spec-driven development approaches",
                 "Building agent-first development workflows"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Use cases",
+                "goal": "Section written, reviewed, and published"
+              }
             },
             "support": {
               "description": "Buy me a coffee section at the end",
               "content_draft": "If you find jkspec useful or interesting, consider buying me a coffee! This is a personal experiment and any support helps me continue exploring ideas like this.\n\n[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/jdfm24)"
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Documentation sections",
+              "goal": "All child components marked as active"
             }
           },
           "tasks": [
             {
-              "name": "Write header and tagline",
-              "description": "Create project title and compelling tagline",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Create project title and compelling tagline",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write What is jkspec section",
-              "description": "Clear explanation of what jkspec is and core purpose",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Clear explanation of what jkspec is and core purpose",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Vision section",
-              "description": "Explain the vision and philosophy behind jkspec",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Explain the vision and philosophy behind jkspec",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Prototype Notice",
-              "description": "Honest, encouraging notice about prototype status",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Honest, encouraging notice about prototype status",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Advantages section",
-              "description": "List key advantages with clear descriptions",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "List key advantages with clear descriptions",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Disadvantages section",
-              "description": "Honest assessment of limitations and tradeoffs",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Honest assessment of limitations and tradeoffs",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Quick Start section",
-              "description": "Simple getting started instructions",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Simple getting started instructions",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Core Concepts section",
-              "description": "Brief explanation of key jkspec concepts",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Brief explanation of key jkspec concepts",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Write Examples section",
-              "description": "Practical jq query examples",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Practical jq query examples",
+                "goal": "Example provided and working"
+              }
             },
             {
-              "name": "Write Use Cases section",
-              "description": "When jkspec might be useful",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "When jkspec might be useful",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Add Buy Me a Coffee section",
-              "description": "Add support button with link at the end",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Add support button with link at the end",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Review and polish",
-              "description": "Final review for tone, clarity, and completeness",
-              "done": true
+              "__meta": {
+                "status": "draft",
+                "description": "Final review for tone, clarity, and completeness",
+                "goal": "Task completed and verified"
+              }
             }
           ],
           "style_guidelines": {
             "tone": "Honest, pragmatic, encouraging",
             "voice": "First-person when discussing prototype status and personal experience",
             "technical_level": "Accessible to developers familiar with JSON and basic command-line tools",
-            "approach": "Lead with value proposition, be transparent about limitations, focus on practical utility"
+            "approach": "Lead with value proposition, be transparent about limitations, focus on practical utility",
+            "__meta": {
+              "status": "draft",
+              "description": "Style guidelines",
+              "goal": "Guideline documented and followed"
+            }
           },
           "references": {
             "output_file": "README.md",
@@ -1174,7 +1625,12 @@
               "__jkspec.components.dual-file-architecture",
               "__jkspec.components.schema-validation"
             ],
-            "update_policy": "If any referenced meta-spec status is draft, keep this spec in draft and regenerate README.md from the template before marking it active again."
+            "update_policy": "If any referenced meta-spec status is draft, keep this spec in draft and regenerate README.md from the template before marking it active again.",
+            "__meta": {
+              "status": "draft",
+              "description": "References",
+              "goal": "Values defined and documented"
+            }
           },
           "template_structure": {
             "description": "Canonical README scaffold that is regenerated whenever referenced meta-specs change",
@@ -1198,7 +1654,12 @@
               "Review tone/style guidelines and update Buy Me a Coffee section",
               "Set readme-documentation.__meta.status back to active only after README.md has been updated"
             ],
-            "validation_signal": "jkspec-validate surfaces a reminder whenever readme-documentation.__meta.status is draft, indicating README.md must be regenerated."
+            "validation_signal": "jkspec-validate surfaces a reminder whenever readme-documentation.__meta.status is draft, indicating README.md must be regenerated.",
+            "__meta": {
+              "status": "draft",
+              "description": "Template structure",
+              "goal": "Template created and usable"
+            }
           }
         },
         "dual-file-architecture": {
@@ -1213,7 +1674,8 @@
             ],
             "purpose": "Enable clean separation between jkspec framework tooling and user project specs, allowing framework updates without affecting project data",
             "complexity": "high",
-            "subagent_required": true
+            "subagent_required": true,
+            "goal": "All child components marked as active"
           },
           "rationale": {
             "problem": "Currently .jkspec/source.json contains both jkspec framework specs (__jkspec) and project specs. This makes it difficult to update jkspec tooling without affecting user data.",
@@ -1224,7 +1686,12 @@
               "Project specs remain untouched during framework updates",
               "Transferable project.json can be shared across teams",
               "Framework and project can evolve independently"
-            ]
+            ],
+            "__meta": {
+              "status": "draft",
+              "description": "Rationale",
+              "goal": "Rationale clearly documented and reviewed"
+            }
           },
           "architecture": {
             "framework_location": {
@@ -1239,12 +1706,27 @@
                     "worker configuration",
                     "Internal framework specs only"
                   ],
-                  "modifiable": "Only when modifying the jkspec framework itself"
+                  "modifiable": "Only when modifying the jkspec framework itself",
+                  "__meta": {
+                    "status": "draft",
+                    "description": "Json",
+                    "goal": "Structure defined and documented"
+                  }
                 },
                 "jkspec.schema.json": {
                   "description": "JSON Schema used by both source.json and project.json",
                   "shared": true
+                },
+                "__meta": {
+                  "status": "draft",
+                  "description": "Files",
+                  "goal": "All child components marked as active"
                 }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Framework location",
+                "goal": "All child components marked as active"
               }
             },
             "project_location": {
@@ -1261,10 +1743,30 @@
                     "All user spec data"
                   ],
                   "transferable": true,
-                  "modifiable": "Users freely modify this for their project"
+                  "modifiable": "Users freely modify this for their project",
+                  "__meta": {
+                    "status": "draft",
+                    "description": "Json",
+                    "goal": "Structure defined and documented"
+                  }
+                },
+                "__meta": {
+                  "status": "draft",
+                  "description": "Files",
+                  "goal": "All child components marked as active"
                 }
               },
-              "note": "Not created in jkspec repo - only in user projects"
+              "note": "Not created in jkspec repo - only in user projects",
+              "__meta": {
+                "status": "draft",
+                "description": "Project location",
+                "goal": "All child components marked as active"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Architectural overview and structure",
+              "goal": "All child components marked as active"
             }
           },
           "schema_usage": {
@@ -1274,7 +1776,17 @@
             "shared_structure": {
               "project": "Both files have project object with different metadata",
               "specs": "Both files have specs object with different content",
-              "worker": ".jkspec/source.json contains worker config, .jkspec-project/project.json does not need it"
+              "worker": ".jkspec/source.json contains worker config, .jkspec-project/project.json does not need it",
+              "__meta": {
+                "status": "draft",
+                "description": "Shared structure",
+                "goal": "Structure defined and documented"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Schema usage",
+              "goal": "All child components marked as active"
             }
           },
           "agent_behavior": {
@@ -1287,7 +1799,12 @@
                 "4. If not exists, create project.json with minimal template",
                 "5. Always read .jkspec/source.json for framework specs and worker config",
                 "6. Always read .jkspec-project/project.json for user project specs"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Initialization",
+                "goal": "Bootstrap logic implemented and tested"
+              }
             },
             "bootstrap_modification": {
               "description": "Worker bootstrap needs to check for project file existence",
@@ -1296,12 +1813,27 @@
                 "Check .jkspec-project/ existence before any operations",
                 "Auto-create .jkspec-project/project.json if missing",
                 "Inform user when creating new project file"
-              ]
+              ],
+              "__meta": {
+                "status": "draft",
+                "description": "Bootstrap modification",
+                "goal": "Bootstrap logic implemented and tested"
+              }
             },
             "query_strategy": {
               "framework_queries": "Use .jkspec/source.json for framework and worker info",
               "project_queries": "Use .jkspec-project/project.json for user project specs",
-              "combined_view": "Agents may need to query both files for complete context"
+              "combined_view": "Agents may need to query both files for complete context",
+              "__meta": {
+                "status": "draft",
+                "description": "Query strategy",
+                "goal": "Policy defined and documented"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Agent behavior",
+              "goal": "All child components marked as active"
             }
           },
           "migration": {
@@ -1312,7 +1844,17 @@
               "step_3": "Create project.json with project metadata and user specs only",
               "step_4": "Remove user specs from .jkspec/source.json, keep only __jkspec and framework specs",
               "step_5": "Update .jkspec/source.json project metadata to describe jkspec framework itself",
-              "step_6": "Test agent queries against both files"
+              "step_6": "Test agent queries against both files",
+              "__meta": {
+                "status": "draft",
+                "description": "From current structure",
+                "goal": "Structure defined and documented"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Migration",
+              "goal": "All child components marked as active"
             }
           },
           "project_json_template": {
@@ -1329,9 +1871,24 @@
                 "conventions": {
                   "spec_location": ".jkspec-project/project.json"
                 },
-                "decisions": []
+                "decisions": [],
+                "__meta": {
+                  "status": "draft",
+                  "description": "Project-level metadata and configuration",
+                  "goal": "Configuration properly defined and documented"
+                }
               },
-              "specs": {}
+              "specs": {},
+              "__meta": {
+                "status": "draft",
+                "description": "Template",
+                "goal": "All child components marked as active"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Project json template",
+              "goal": "All child components marked as active"
             }
           },
           "worker_integration": {
@@ -1345,40 +1902,65 @@
               "jkspec-test-sync": "Should check implementations for specs in project.json",
               "jkspec-implement": "Should work with specs from project.json",
               "jkspec-explain": "Should explain specs from either file",
-              "jkspec-verify": "Should verify implementations from project.json"
+              "jkspec-verify": "Should verify implementations from project.json",
+              "__meta": {
+                "status": "draft",
+                "description": "Command modifications",
+                "goal": "Integration implemented and tested"
+              }
             },
             "file_selection_logic": {
               "rule_1": "If spec-id starts with __, use .jkspec/source.json (framework)",
               "rule_2": "If spec-id does NOT start with __, use .jkspec-project/project.json (user project)",
               "rule_3": "Worker config always read from .jkspec/source.json",
-              "rule_4": "Project specs always read from .jkspec-project/project.json"
+              "rule_4": "Project specs always read from .jkspec-project/project.json",
+              "__meta": {
+                "status": "draft",
+                "description": "File selection logic",
+                "goal": "Integration implemented and tested"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Worker integration",
+              "goal": "All child components marked as active"
             }
           },
           "tasks": [
             {
-              "name": "Update worker bootstrap guidelines",
-              "description": "Add project file discovery to worker.guidelines so agents know to check for .jkspec-project/project.json",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Add project file discovery to worker.guidelines so agents know to check for .jkspec-project/project.json",
+                "goal": "Guideline documented and followed"
+              }
             },
             {
-              "name": "Add schema validation spec",
-              "description": "Add or update spec documenting that validation uses ajv for both source.json and project.json",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Add or update spec documenting that validation uses ajv for both source.json and project.json",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Create dual-file architecture tests",
-              "description": "Create tests in .jkspec/tests/ to verify agent behavior with dual-file setup",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Create tests in .jkspec/tests/ to verify agent behavior with dual-file setup",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Update worker commands documentation",
-              "description": "Update command markdown files to document file selection logic (__ prefix = source.json, no prefix = project.json)",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Update command markdown files to document file selection logic (__ prefix = source.json, no prefix = project.json)",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Update README with dual-file explanation",
-              "description": "Document in README that users get project.json auto-created in their projects",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Document in README that users get project.json auto-created in their projects",
+                "goal": "Task completed and verified"
+              }
             }
           ],
           "implementation_note": "This is a meta-spec only. The .jkspec-project/ directory and project.json file are NOT created in the jkspec repository itself. They are auto-created by agents when users use jkspec in their own projects.",
@@ -1390,7 +1972,12 @@
                 "description": "Test that agents properly discover or create project.json",
                 "setup": "Temporary directory with .jkspec/ but no .jkspec-project/",
                 "expected": "Agent creates .jkspec-project/project.json with minimal template",
-                "test_file": "test_project_discovery.js"
+                "test_file": "test_project_discovery.js",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Project json discovery",
+                  "goal": "Test scenario implemented and passing"
+                }
               },
               "file_selection_by_prefix": {
                 "description": "Test that __ prefix specs route to source.json, others to project.json",
@@ -1401,27 +1988,57 @@
                   "Add spec with __ prefix - should write to source.json",
                   "Add spec without __ prefix - should write to project.json"
                 ],
-                "test_file": "test_file_selection.js"
+                "test_file": "test_file_selection.js",
+                "__meta": {
+                  "status": "draft",
+                  "description": "File selection by prefix",
+                  "goal": "Test scenario implemented and passing"
+                }
               },
               "schema_validation_both_files": {
                 "description": "Test that validation validates both files",
                 "setup": "Both source.json and project.json with valid specs",
                 "expected": "Both files pass ajv validation against jkspec.schema.json",
-                "test_file": "test_schema_validation.js"
+                "test_file": "test_schema_validation.js",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Schema validation both files",
+                  "goal": "Test scenario implemented and passing"
+                }
               },
               "project_json_required": {
                 "description": "Test that operations BLOCK until project.json exists (create it automatically if missing)",
                 "setup": "Only .jkspec/source.json exists",
                 "expected": ".jkspec-project/project.json is auto-created before accepting user specs",
-                "test_file": "test_project_required.js"
+                "test_file": "test_project_required.js",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Project json required",
+                  "goal": "Test scenario implemented and passing"
+                }
               },
               "migration_scenario": {
                 "description": "Test migration from single-file to dual-file",
                 "setup": "Old source.json with both __ and user specs",
                 "operation": "Run migration to split into source.json and project.json",
                 "expected": "__ specs remain in source.json, user specs move to project.json",
-                "test_file": "test_migration.js"
+                "test_file": "test_migration.js",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Migration scenario",
+                  "goal": "Test scenario implemented and passing"
+                }
+              },
+              "__meta": {
+                "status": "draft",
+                "description": "Scenarios",
+                "goal": "All child components marked as active"
               }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Test scenarios",
+              "goal": "All child components marked as active"
             }
           },
           "schema_handling": {
@@ -1432,16 +2049,36 @@
               "option_1": {
                 "approach": "Reference schema from .jkspec/ directory",
                 "validation_path": ".jkspec/jkspec.schema.json",
-                "note": "Schema is part of framework, gets updated with framework updates"
+                "note": "Schema is part of framework, gets updated with framework updates",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Option 1",
+                  "goal": "Schema reference approach documented with validation path and implications"
+                }
               },
               "option_2": {
                 "approach": "Copy schema to .jkspec-project/ directory",
                 "validation_path": ".jkspec-project/jkspec.schema.json",
-                "note": "Allows offline validation, but needs manual sync with framework updates"
+                "note": "Allows offline validation, but needs manual sync with framework updates",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Option 2",
+                  "goal": "Schema copy approach documented with validation path and trade-offs"
+                }
               },
-              "recommended": "option_1 - Keep schema in .jkspec/ as single source of truth"
+              "recommended": "option_1 - Keep schema in .jkspec/ as single source of truth",
+              "__meta": {
+                "status": "draft",
+                "description": "User projects",
+                "goal": "All child components marked as active"
+              }
             },
-            "validation_command": "Validation should always reference .jkspec/jkspec.schema.json regardless of which file is being validated"
+            "validation_command": "Validation should always reference .jkspec/jkspec.schema.json regardless of which file is being validated",
+            "__meta": {
+              "status": "draft",
+              "description": "Schema handling",
+              "goal": "All child components marked as active"
+            }
           }
         },
         "schema-validation": {
@@ -1454,25 +2091,46 @@
               "schema",
               "ajv"
             ],
-            "purpose": "Define validation strategy for both source.json and project.json files"
+            "purpose": "Define validation strategy for both source.json and project.json files",
+            "goal": "All child components marked as active"
           },
           "validator": {
             "tool": "ajv",
             "description": "AJV (Another JSON Schema Validator) - fast JSON schema validator",
             "package": "ajv",
-            "why_ajv": "Industry-standard, performant, supports JSON Schema draft 2020-12"
+            "why_ajv": "Industry-standard, performant, supports JSON Schema draft 2020-12",
+            "__meta": {
+              "status": "draft",
+              "description": "Validator",
+              "goal": "Validation logic implemented and working"
+            }
           },
           "files_to_validate": {
             "framework_file": {
               "path": ".jkspec/source.json",
               "schema": ".jkspec/jkspec.schema.json",
-              "description": "Framework specifications including __jkspec meta specs"
+              "description": "Framework specifications including __jkspec meta specs",
+              "__meta": {
+                "status": "draft",
+                "description": "Framework file",
+                "goal": "Validation logic implemented and working"
+              }
             },
             "project_file": {
               "path": ".jkspec-project/project.json",
               "schema": ".jkspec/jkspec.schema.json",
               "description": "User project specifications (file MUST exist; create it before any user spec work)",
-              "optional": false
+              "optional": false,
+              "__meta": {
+                "status": "draft",
+                "description": "Project file",
+                "goal": "Validation logic implemented and working"
+              }
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Files to validate",
+              "goal": "All child components marked as active"
             }
           },
           "validation_rules": {
@@ -1486,7 +2144,12 @@
               "active",
               "deprecated"
             ],
-            "internal_specs": "Specs with __ prefix should only exist in source.json"
+            "internal_specs": "Specs with __ prefix should only exist in source.json",
+            "__meta": {
+              "status": "draft",
+              "description": "Validation rules",
+              "goal": "Rule implemented and enforced"
+            }
           },
           "validation_command": {
             "description": "jkspec-validate command validates both files",
@@ -1495,28 +2158,41 @@
               "Check if .jkspec-project/project.json exists",
               "If exists, validate .jkspec-project/project.json against schema",
               "Report validation results for both files"
-            ]
+            ],
+            "__meta": {
+              "status": "draft",
+              "description": "Validation command",
+              "goal": "Validation logic implemented and working"
+            }
           },
           "tasks": [
             {
-              "name": "Install ajv dependency",
-              "description": "Add ajv package for JSON schema validation",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Add ajv package for JSON schema validation",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Create validation script",
-              "description": "Create validation script that uses ajv to validate both files",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Create validation script that uses ajv to validate both files",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Integrate with jkspec-validate command",
-              "description": "Update jkspec-validate command to use ajv validation",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Update jkspec-validate command to use ajv validation",
+                "goal": "Task completed and verified"
+              }
             },
             {
-              "name": "Add validation tests",
-              "description": "Create tests for schema validation with valid and invalid specs",
-              "done": false
+              "__meta": {
+                "status": "draft",
+                "description": "Create tests for schema validation with valid and invalid specs",
+                "goal": "Task completed and verified"
+              }
             }
           ]
         },
@@ -1524,13 +2200,14 @@
           "__meta": {
             "type": "component",
             "description": "Command-line utilities that provide deterministic automation for the jkspec worker",
-            "status": "active",
+            "status": "draft",
             "tags": [
               "cli",
               "tooling",
               "internal"
             ],
-            "location": ".jkspec/cli"
+            "location": ".jkspec/cli",
+            "goal": "All child components marked as active"
           },
           "purpose": "Document every CLI helper the worker depends on so new tooling stays traceable and versioned with specs.",
           "coverage": [
@@ -1542,12 +2219,13 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python bootstrapper that provisions a virtual environment and installs project requirements",
-                "status": "active",
+                "status": "draft",
                 "tags": [
                   "python",
                   "bootstrap",
                   "venv"
-                ]
+                ],
+                "goal": "All child components marked as active"
               },
               "path": ".jkspec/cli/initialize.py",
               "language": "python",
@@ -1566,7 +2244,12 @@
                 "--venv": "Target directory for the virtual environment; accepts relative or absolute paths.",
                 "--requirements": "Optional requirements file to install after creation.",
                 "--skip-install": "Skips dependency installation even when a requirements file exists.",
-                "--recreate": "Removes the existing environment before creating a fresh one."
+                "--recreate": "Removes the existing environment before creating a fresh one.",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Arguments",
+                  "goal": "Arguments defined and documented"
+                }
               },
               "outputs": [
                 "Managed virtual environment located at the requested path",
@@ -1577,12 +2260,13 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Bash + jq renderer that converts a spec into a Markdown inspection file",
-                "status": "active",
+                "status": "draft",
                 "tags": [
                   "bash",
                   "jq",
                   "documentation"
-                ]
+                ],
+                "goal": "All child components marked as active"
               },
               "path": ".jkspec/cli/make_md_view.sh",
               "language": "bash",
@@ -1607,19 +2291,25 @@
               "arguments": {
                 "spec-id": "Spec identifier (defaults to __jkspec.components.cli)",
                 "json-file": "Source JSON file (defaults to .jkspec/source.json)",
-                "output-md": "Output Markdown path (defaults to .tmp/<spec-id>.md)"
+                "output-md": "Output Markdown path (defaults to .tmp/<spec-id>.md)",
+                "__meta": {
+                  "status": "draft",
+                  "description": "Arguments",
+                  "goal": "Arguments defined and documented"
+                }
               }
             },
             "get_all_pending_source_drafts": {
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft internal specs in source.json",
-                "status": "active",
+                "status": "draft",
                 "tags": [
                   "python",
                   "analysis",
                   "drafts"
-                ]
+                ],
+                "goal": "Script implemented, tested, and working"
               },
               "path": ".jkspec/cli/get_all_pending_source_drafts.py",
               "language": "python",
@@ -1644,12 +2334,13 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft project specs in project.json",
-                "status": "active",
+                "status": "draft",
                 "tags": [
                   "python",
                   "analysis",
                   "project"
-                ]
+                ],
+                "goal": "Script implemented, tested, and working"
               },
               "path": ".jkspec/cli/get_all_pending_project_drafts.py",
               "language": "python",
@@ -1674,12 +2365,13 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python wrapper that executes the worker bootstrap first_command to initialize agent context",
-                "status": "active",
+                "status": "draft",
                 "tags": [
                   "python",
                   "bootstrap",
                   "context"
-                ]
+                ],
+                "goal": "Script implemented, tested, and working"
               },
               "path": ".jkspec/cli/bootstrap.py",
               "language": "python",
@@ -1692,6 +2384,11 @@
                 "Works with zero arguments - simply outputs worker JSON to stdout"
               ],
               "implementation": "Executes: jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == \"object\" then .description else . end))' .jkspec/source.json"
+            },
+            "__meta": {
+              "status": "draft",
+              "description": "Utilities",
+              "goal": "All child components marked as active"
             }
           },
           "guidelines": [
@@ -1704,6 +2401,11 @@
             "Optional flags (--output, --show-config, etc.) are permitted for advanced use cases, but the tool must work correctly when called with no arguments",
             "Agents should be able to invoke any CLI utility with just: python3 .jkspec/cli/<script>.py"
           ]
+        },
+        "__meta": {
+          "status": "draft",
+          "description": "Component specifications",
+          "goal": "All child components marked as active"
         }
       }
     }

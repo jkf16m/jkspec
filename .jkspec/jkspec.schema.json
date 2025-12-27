@@ -70,7 +70,11 @@
         "__meta": {
           "type": "object",
           "description": "Metadata that identifies this as a spec and provides agent instructions",
-          "required": [],
+          "required": [
+            "status",
+            "description",
+            "goal"
+          ],
           "properties": {
             "type": {
               "type": "string",
@@ -172,37 +176,10 @@
             }
           },
           "additionalProperties": true
-        },
-        "tasks": {
-          "type": "array",
-          "description": "Implementation tasks for traceability",
-          "items": {
-            "type": "object",
-            "required": [
-              "name",
-              "description",
-              "done"
-            ],
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Short task name"
-              },
-              "description": {
-                "type": "string",
-                "description": "Detailed description of what needs to be done"
-              },
-              "done": {
-                "type": "boolean",
-                "description": "Whether this task is completed"
-              }
-            },
-            "additionalProperties": false
-          }
         }
       },
       "patternProperties": {
-        "^(?!__meta$|tasks$).*": {
+        "^(?!__meta$).*": {
           "oneOf": [
             {
               "$ref": "#/$defs/spec",
