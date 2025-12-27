@@ -8,7 +8,7 @@
       "pattern": "spec-driven development",
       "philosophy": "Provide AI agents with structured, queryable context to eliminate codebase exploration overhead",
       "__meta": {
-        "status": "draft",
+        "status": "active",
         "description": "Architectural overview and structure",
         "goal": "Architecture fields (style, pattern, philosophy) documented and reflect current state"
       }
@@ -22,7 +22,7 @@
       "dual_file_architecture": "Framework specs stay in .jkspec/source.json. All user specs MUST live in .jkspec-project/project.json (auto-created on bootstrap).",
       "schema_validation": "Both files validate against .jkspec/jkspec.schema.json using ajv",
       "__meta": {
-        "status": "draft",
+        "status": "active",
         "description": "Coding and organizational conventions",
         "goal": "All jkspec conventions documented and enforced by tooling"
       }
@@ -37,7 +37,7 @@
         "decision": "Use single .jkspec/source.json file with structured data, queryable via jq",
         "consequences": "Agents get instant context. Must maintain spec alongside code. JSON parsing overhead minimal.",
         "__meta": {
-          "status": "draft",
+          "status": "active",
           "description": "Decisions",
           "goal": "ADR-001 documented with context, decision, and consequences"
         }
@@ -51,7 +51,7 @@
         "decision": "Use object with unique keys for specs: {\"spec-name\": {...}}",
         "consequences": "Direct access via jq '.specs[\"name\"]'. Natural key uniqueness. Slightly more verbose queries for filtering.",
         "__meta": {
-          "status": "draft",
+          "status": "active",
           "description": "Decisions",
           "goal": "ADR-002 documented with context, decision, and consequences"
         }
@@ -65,7 +65,7 @@
         "decision": "Prefix internal/meta specs with __ (double underscore) to clearly mark them as part of jkspec itself",
         "consequences": "Users can easily identify and avoid modifying internal specs. Clear separation of concerns between framework and user content.",
         "__meta": {
-          "status": "draft",
+          "status": "active",
           "description": "Decisions",
           "goal": "ADR-003 documented with context, decision, and consequences"
         }
@@ -79,7 +79,7 @@
         "decision": "Remove jkspec CLI tool. Use jq directly for all read/write operations on .jkspec/source.json",
         "consequences": "Simpler architecture with fewer moving parts. Agent can see exact jq commands. Users learn standard jq instead of custom CLI. Slightly more verbose operations but more transparent and flexible.",
         "__meta": {
-          "status": "draft",
+          "status": "active",
           "description": "Decisions",
           "goal": "ADR-004 documented with context, decision, and consequences"
         }
@@ -93,14 +93,14 @@
         "decision": "Split into two files: .jkspec/source.json (framework only with __jkspec specs) and .jkspec-project/project.json (user project specs). Both use the same schema. Agents check for .jkspec-project/ on init and create if missing.",
         "consequences": "Users can update jkspec by deleting .jkspec/ and cloning fresh. Project data in .jkspec-project/project.json remains safe. Commands must implement file selection logic based on spec-id prefix. Slightly more complex for agents but much cleaner separation of concerns.",
         "__meta": {
-          "status": "draft",
+          "status": "active",
           "description": "Decisions",
           "goal": "ADR-005 documented with context, decision, and consequences"
         }
       }
     ],
     "__meta": {
-      "status": "draft",
+      "status": "active",
       "description": "Project-level metadata and configuration",
       "goal": "All child components marked as active"
     }
@@ -441,7 +441,11 @@
                 "description": "Strategy for intelligently expanding context based on user request comparison with bootstrap output",
                 "goal": "Enable worker to recognize when bootstrap summaries need expansion via targeted queries"
               }
-            }
+            },
+            "include_full_fields": [
+              "guidelines_structured"
+            ],
+            "rationale": "guidelines_structured contains weighted priority rules critical for first-run behavior - must be loaded immediately, not on-demand"
           },
           "commands_location": ".opencode/command",
           "commands_description": "All jkspec-worker commands are defined as minimal markdown files in .opencode/command/ directory. Each command file references a jq query to fetch the full command definition from .jkspec/source.json at .specs.__jkspec.components.worker.commands_definitions.<command-name>",

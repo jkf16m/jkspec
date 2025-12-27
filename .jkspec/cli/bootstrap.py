@@ -27,12 +27,40 @@ def main() -> None:
         print(f"error: source.json not found at {source_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Execute the first_command defined in worker.bootstrap
-    cmd = [
-        "jq",
-        '.specs.__jkspec.components.worker | with_entries(.value |= (if type == "object" then .description else . end))',
-        str(source_path),
-    ]
+    # Load the worker object and bootstrap config
+    try:
+        with open(source_path) as f:
+            source_data = json.load(f)
+        worker = (
+            source_data.get("specs", {})
+            .get("__jkspec", {})
+            .get("components", {})
+            .get("worker", {})
+        )
+        include_full = worker.get("bootstrap", {}).get("include_full_fields", [])
+    except (json.JSONDecodeError, KeyError) as exc:
+        print(f"error: failed to load worker config: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Build jq filter that summarizes most fields but keeps specified fields full
+    if include_full:
+        # Create conditions for each field to keep full
+        keep_full_conditions = " or ".join(
+            f'.key == "{field}"' for field in include_full
+        )
+        jq_filter = (
+            f".specs.__jkspec.components.worker | "
+            f"with_entries(if ({keep_full_conditions}) then . "
+            f'else .value |= (if type == "object" then .description else . end) end)'
+        )
+    else:
+        # Default: summarize all object fields
+        jq_filter = (
+            ".specs.__jkspec.components.worker | "
+            'with_entries(.value |= (if type == "object" then .description else . end))'
+        )
+
+    cmd = ["jq", jq_filter, str(source_path)]
 
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
