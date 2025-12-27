@@ -71,7 +71,7 @@
           "type": "object",
           "description": "Metadata that identifies this as a spec and provides agent instructions",
           "required": [
-            "status",
+            "done",
             "description",
             "goal"
           ],
@@ -93,14 +93,13 @@
               "type": "string",
               "description": "Clear description of what this spec describes"
             },
-            "status": {
+            "done": {
+              "type": "boolean",
+              "description": "Implementation status: false (not implemented, goal not accomplished), true (implemented and working, goal accomplished)"
+            },
+            "goal": {
               "type": "string",
-              "enum": [
-                "draft",
-                "active",
-                "deprecated"
-              ],
-              "description": "Implementation status: draft (not implemented), active (implemented and working), deprecated (no longer in use)"
+              "description": "Clear statement of what accomplishment means for this spec (what needs to be true for done: true)"
             },
             "tags": {
               "type": "array",
@@ -173,6 +172,24 @@
               "items": {
                 "type": "string"
               }
+            },
+            "implements": {
+              "type": "array",
+              "description": "Downstream dependencies - spec paths that implement or depend on this spec. When this spec changes, these should be checked/updated.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "references": {
+              "type": "array",
+              "description": "Upstream dependencies - spec paths that this spec depends on. When this spec has issues, check these references for current requirements.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "validates": {
+              "type": "string",
+              "description": "Optional shell command or jq query to validate consistency with implementations"
             }
           },
           "additionalProperties": true

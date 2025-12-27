@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List dot-delimited paths for all draft internal specs."""
+"""List dot-delimited paths for all incomplete internal specs (done == false)."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def load_json(path: Path) -> dict:
 def iter_draft_paths(node, path: List[str]) -> Iterable[List[str]]:
     if isinstance(node, dict):
         meta = node.get("__meta")
-        if isinstance(meta, dict) and meta.get("status") == "draft":
+        if isinstance(meta, dict) and meta.get("done") == False:
             yield path
         for key, value in node.items():
             yield from iter_draft_paths(value, path + [str(key)])
@@ -42,17 +42,17 @@ def include_internal_spec(path: List[str]) -> bool:
 
 def main() -> None:
     data = load_json(SOURCE_PATH)
-    
+
     # Convert to dot-delimited strings
     draft_paths = [
         ".".join(path)
         for path in iter_draft_paths(data, [])
         if include_internal_spec(path)
     ]
-    
+
     # Sort by path length (most specific first = longest path = most dots)
     # Then alphabetically for same length
-    draft_paths.sort(key=lambda p: (-p.count('.'), p))
+    draft_paths.sort(key=lambda p: (-p.count("."), p))
 
     for entry in draft_paths:
         print(entry)
