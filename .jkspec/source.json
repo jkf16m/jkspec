@@ -482,34 +482,6 @@
               "goal": "All child components marked as active"
             }
           },
-          "guidelines": [
-            "Always validate input - check spec-id naming conventions and required fields",
-            "Use jq for all spec reading and modifications",
-            "Be concise and provide clear, actionable output",
-            "Show results after operations",
-            "Handle errors gracefully with explanations",
-            "Follow kebab-case convention for spec IDs",
-            "Be autonomous within spec scope",
-            "Ensure thorough implementation according to requirements",
-            "Dual-file architecture: Check for .jkspec-project/project.json for user project specs, use .jkspec/source.json for framework specs",
-            "File selection: Specs with __ prefix go to source.json (framework), specs without __ prefix go to project.json (user project)",
-            "Auto-create project.json: If .jkspec-project/project.json does not exist, create it with minimal template on first user spec operation",
-            "Always validate both source.json and project.json against jkspec.schema.json using ajv",
-            "After ANY modification to source.json or project.json, IMMEDIATELY validate against jkspec.schema.json using: ajv validate -s .jkspec/jkspec.schema.json -d <file> --spec=draft2020 --strict=false. If validation fails, fix the issue before proceeding.",
-            "Default spec queries MUST target .jkspec-project/project.json unless the user explicitly requests framework specs.",
-            "Do not mention meta-specs or __jkspec components unless the user prompts for them.",
-            "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec.",
-            "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user",
-            "Spec completeness rule: Every spec and nested component MUST have a __meta object with REQUIRED fields: status and description (type is optional but recommended)",
-            "Task prioritization: When implementing, sort discovered drafts by JSON path length (longest first) to prioritize leaf-node tasks over parent specs",
-            "Task flexibility: Any object with __meta.status=draft is a task - no specific field name required (can be in arrays like implementation_steps, requirements, test_cases, or anywhere)",
-            "Spec completeness rule: Every spec and nested component MUST have a __meta object when first created, with status explicitly set to draft or active",
-            "Status transition rule: A spec can only be marked as active when ALL its child components (nested objects, array items with __meta) are also marked as active",
-            "Upward propagation: When implementing leaf tasks, always check if completing them allows parent specs to transition from draft to active",
-            "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state",
-            "Spec definition: Any object with __meta is a spec - no specific field name required, can exist anywhere in the tree",
-            "MANDATORY: Before executing ANY user request, compare the request against bootstrap output. If the request relates to a field showing null, summary, or truncated data in bootstrap, the worker MUST fetch full detailed specs using targeted jq queries. Bootstrap summaries are intentional signals that complete definitions exist in source.json and should be loaded on-demand."
-          ],
           "complex_specs": {
             "description": "How to handle specs with multiple components",
             "approach": [
@@ -1407,6 +1379,70 @@
               "dependencies": "List of dependencies"
             },
             "recognition": "Agents identify specs by presence of __meta, regardless of field name or location in tree"
+          },
+          "guidelines_structured": {
+            "description": "Operational guidelines organized by priority weight - higher weight = more critical",
+            "critical": {
+              "weight": 10,
+              "description": "Absolutely mandatory rules - violation causes data corruption or system failure",
+              "rules": [
+                "MANDATORY: Before executing ANY user request, compare the request against bootstrap output. If the request relates to a field showing null, summary, or truncated data in bootstrap, the worker MUST fetch full detailed specs using targeted jq queries. Bootstrap summaries are intentional signals that complete definitions exist in source.json and should be loaded on-demand.",
+                "Use jq for all spec reading and modifications - NEVER read or write directly to source.json or project.json files",
+                "After ANY modification to source.json or project.json, IMMEDIATELY validate against jkspec.schema.json using: ajv validate -s .jkspec/jkspec.schema.json -d <file> --spec=draft2020 --strict=false. If validation fails, fix the issue before proceeding.",
+                "NEVER use dangerous jq patterns that pipe to selectors (e.g., .path = value | .path) - see worker.jq_operations.safety for safe patterns",
+                "Dual-file architecture: Check for .jkspec-project/project.json for user project specs, use .jkspec/source.json for framework specs",
+                "File selection: Specs with __ prefix go to source.json (framework), specs without __ prefix go to project.json (user project)"
+              ]
+            },
+            "high": {
+              "weight": 8,
+              "description": "Very important rules - violation causes incorrect behavior or incomplete implementation",
+              "rules": [
+                "Spec completeness rule: Every spec and nested component MUST have a __meta object when first created, with status explicitly set to draft or active",
+                "Status transition rule: A spec can only be marked as active when ALL its child components (nested objects, array items with __meta) are also marked as active",
+                "Upward propagation: When implementing leaf tasks, always check if completing them allows parent specs to transition from draft to active",
+                "Default spec queries MUST target .jkspec-project/project.json unless the user explicitly requests framework specs",
+                "Always validate input - check spec-id naming conventions and required fields before operations"
+              ]
+            },
+            "medium": {
+              "weight": 5,
+              "description": "Important operational rules - enhance quality and user experience",
+              "rules": [
+                "After creating or updating any spec, export it to Markdown using .jkspec/cli/make_md_view.sh into .tmp/<spec-id>.md and share the inspection path with the user",
+                "Task prioritization: When implementing, sort discovered drafts by JSON path length (longest first) to prioritize leaf-node tasks over parent specs",
+                "Auto-create project.json: If .jkspec-project/project.json does not exist, create it with minimal template on first user spec operation",
+                "New spec creation: Always add specs to .jkspec-project/project.json and never ask users to choose a scope unless they explicitly request a __ prefixed internal spec",
+                "Handle errors gracefully with explanations",
+                "Be concise and provide clear, actionable output",
+                "Show results after operations"
+              ]
+            },
+            "low": {
+              "weight": 3,
+              "description": "Style and convention preferences - improve consistency but not critical",
+              "rules": [
+                "Follow kebab-case convention for spec IDs",
+                "Do not mention meta-specs or __jkspec components unless the user prompts for them",
+                "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state",
+                "Be autonomous within spec scope",
+                "Ensure thorough implementation according to requirements"
+              ]
+            },
+            "definitions": {
+              "weight": 1,
+              "description": "Informational rules - define concepts rather than mandate behavior",
+              "rules": [
+                "Spec definition: Any object with __meta is a spec - no specific field name required, can exist anywhere in the tree",
+                "Task flexibility: Any object with __meta.status=draft is a task - no specific field name required (can be in arrays like implementation_steps, requirements, test_cases, or anywhere)",
+                "Spec completeness rule: Every spec and nested component MUST have a __meta object with REQUIRED fields: status and description (type is optional but recommended)"
+              ]
+            },
+            "__meta": {
+              "status": "active",
+              "description": "Structured guidelines with priority weights for worker behavior",
+              "goal": "Organize guidelines by criticality to help worker prioritize conflicting rules"
+            }
           }
         },
         "traceability": {
