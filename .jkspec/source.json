@@ -535,7 +535,7 @@
                 "Confirm success and show the added spec: jq \".specs[\\\"<spec-id>\\\"]\" <target-file>"
               ],
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Extend",
                 "goal": "Command fully defined with steps and examples"
               }
@@ -558,7 +558,7 @@
                 "Attach location/dependency metadata for each new child"
               ],
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Deepen",
                 "goal": "Command fully defined with steps and examples"
               }
@@ -581,7 +581,7 @@
                 "sorting": "Sort by path length descending - longest paths (most specific tasks) come first",
                 "rationale": "Leaf-node tasks are more concrete and easier to implement, building toward parent specs",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Draft discovery",
                   "goal": "Command fully defined with steps and examples"
                 }
@@ -596,14 +596,14 @@
                 "flexibility": "Tasks can live anywhere in the spec tree - no specific field name required",
                 "discovery": "The get_all_pending_drafts commands find all draft objects regardless of location",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Task pattern",
                   "goal": "Command fully defined with steps and examples"
                 }
               },
               "__meta": {
                 "type": "command",
-                "status": "draft",
+                "status": "active",
                 "description": "Command definition for implementing draft specs using longest-path-first strategy",
                 "goal": "All child components marked as active"
               }
@@ -625,7 +625,7 @@
                 "Never query or access project specs (.jkspec-project/project.json) while in dev-mode; limit interactions strictly to internal __-prefixed specs."
               ],
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Dev mode",
                 "goal": "Command fully defined with steps and examples"
               }
@@ -633,7 +633,7 @@
             "__meta": {
               "type": "reference",
               "description": "Detailed definitions, steps, and principles for each worker command",
-              "status": "draft",
+              "status": "active",
               "goal": "All child components marked as active"
             },
             "description": "Step-by-step definitions for each worker command"
@@ -991,7 +991,7 @@
           "view_inspection": {
             "__meta": {
               "type": "guideline",
-              "status": "draft",
+              "status": "active",
               "tags": [
                 "worker",
                 "inspection",
@@ -1011,7 +1011,7 @@
               ],
               "goal": "Provide an immediate, human-readable Markdown snapshot for each spec change.",
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Problem",
                 "goal": "Rationale clearly documented and reviewed"
               }
@@ -1027,7 +1027,7 @@
                   "Exit with non-zero status on invalid input"
                 ],
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Cli tool",
                   "goal": "Deliverable completed and verified"
                 }
@@ -1037,13 +1037,13 @@
                 "output_location": ".tmp/<spec-id>.md",
                 "rationale": "Keeps review loop tight and gives users a document they can open without tooling",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Worker guideline",
                   "goal": "Guideline documented and followed"
                 }
               },
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Deliverables",
                 "goal": "All child components marked as active"
               }
@@ -1055,7 +1055,7 @@
                 "priority": "critical",
                 "description": "Implement make_md_view.sh to convert spec JSON into a Markdown document with sections for meta, problem, requirements, implementation, testing, tasks, and notes.",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Requirements specification",
                   "goal": "Requirement defined and satisfied"
                 }
@@ -1066,7 +1066,7 @@
                 "priority": "high",
                 "description": "Ensure a top-level .tmp directory exists and always house rendered Markdown files there using the <spec-id>.md naming pattern.",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Requirements specification",
                   "goal": "Requirement defined and satisfied"
                 }
@@ -1077,7 +1077,7 @@
                 "priority": "high",
                 "description": "Immediately after adding or editing a spec, export the spec JSON to a temp file and run the CLI to generate the Markdown view, then surface the output path in responses.",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Requirements specification",
                   "goal": "Requirement defined and satisfied"
                 }
@@ -1094,7 +1094,7 @@
               ],
               "automation_notes": "Future automation can watch .tmp for stale files and regenerate automatically",
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Workflow",
                 "goal": "Rationale clearly documented and reviewed"
               }
@@ -1102,21 +1102,21 @@
             "tasks": [
               {
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Author make_md_view.sh with jq-based Markdown rendering",
                   "goal": "Task completed and verified"
                 }
               },
               {
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Append rule requiring Markdown view generation for each new/updated spec",
                   "goal": "Rule implemented and enforced"
                 }
               },
               {
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Generate a Markdown file for the latest spec to show the workflow",
                   "goal": "Task completed and verified"
                 }
@@ -1130,7 +1130,7 @@
           "tasks": [
             {
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Use make_md_view.sh to generate .tmp/<spec-id>.md after spec updates",
                 "goal": "Task completed and verified"
               }
@@ -1149,7 +1149,7 @@
                   "Array items that represent tasks/subtasks"
                 ],
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Rule definitions",
                   "goal": "Definition complete and validated"
                 }
@@ -1159,7 +1159,7 @@
                 "description": "A parent can only be marked active when ALL children are active",
                 "example": "If user-auth has 3 child implementation_steps, user-auth stays draft until all 3 steps are active",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Rule definitions",
                   "goal": "Definition complete and validated"
                 }
@@ -1167,9 +1167,9 @@
               {
                 "name": "Upward propagation",
                 "description": "After marking a leaf task as active, check if parent can now transition",
-                "workflow": "Leaf \u2192 active, check siblings, if all active \u2192 parent \u2192 active, repeat up the tree",
+                "workflow": "Leaf → active, check siblings, if all active → parent → active, repeat up the tree",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Rule definitions",
                   "goal": "Definition complete and validated"
                 }
@@ -1179,7 +1179,7 @@
                 "description": "Never leave specs without __meta or with ambiguous status",
                 "rationale": "Prevents AI from forgetting about incomplete work or creating unclear spec states",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Rule definitions",
                   "goal": "Definition complete and validated"
                 }
@@ -1190,14 +1190,14 @@
               "active": "Implemented and working - this component and ALL children complete",
               "deprecated": "No longer in use",
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Status values",
                 "goal": "Values defined and documented"
               }
             },
             "__meta": {
               "type": "policy",
-              "status": "draft",
+              "status": "active",
               "description": "Status management rules to prevent spec drift and ensure completeness tracking",
               "goal": "All child components marked as active"
             }
@@ -1346,7 +1346,7 @@
             "prototype_notice": {
               "description": "Transparent notice that this is a prototype",
               "tone": "honest and encouraging",
-              "content_draft": "\u26a0\ufe0f **This is a prototype.** jkspec is an experiment in improving AI agent workflows. It's rough around the edges, the conventions are still evolving, and there are likely better ways to solve some of these problems.\n\nThat said, I've found it genuinely useful in my own agent-assisted development, and I believe the core idea has potential. If you're interested in exploring new ways to work with AI coding assistants, give it a try. Feedback, ideas, and constructive criticism are welcome.",
+              "content_draft": "⚠️ **This is a prototype.** jkspec is an experiment in improving AI agent workflows. It's rough around the edges, the conventions are still evolving, and there are likely better ways to solve some of these problems.\n\nThat said, I've found it genuinely useful in my own agent-assisted development, and I believe the core idea has potential. If you're interested in exploring new ways to work with AI coding assistants, give it a try. Feedback, ideas, and constructive criticism are welcome.",
               "__meta": {
                 "status": "draft",
                 "description": "Prototype notice",
@@ -1446,7 +1446,7 @@
                 },
                 {
                   "name": "Status Lifecycle",
-                  "description": "draft \u2192 active \u2192 deprecated"
+                  "description": "draft → active → deprecated"
                 },
                 {
                   "name": "Hierarchical Structure",
@@ -1929,14 +1929,14 @@
           "tasks": [
             {
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Add project file discovery to worker.guidelines so agents know to check for .jkspec-project/project.json",
                 "goal": "Guideline documented and followed"
               }
             },
             {
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Add or update spec documenting that validation uses ajv for both source.json and project.json",
                 "goal": "Task completed and verified"
               }
@@ -2100,7 +2100,7 @@
             "package": "ajv",
             "why_ajv": "Industry-standard, performant, supports JSON Schema draft 2020-12",
             "__meta": {
-              "status": "draft",
+              "status": "active",
               "description": "Validator",
               "goal": "Validation logic implemented and working"
             }
@@ -2111,7 +2111,7 @@
               "schema": ".jkspec/jkspec.schema.json",
               "description": "Framework specifications including __jkspec meta specs",
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Framework file",
                 "goal": "Validation logic implemented and working"
               }
@@ -2122,13 +2122,13 @@
               "description": "User project specifications (file MUST exist; create it before any user spec work)",
               "optional": false,
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Project file",
                 "goal": "Validation logic implemented and working"
               }
             },
             "__meta": {
-              "status": "draft",
+              "status": "active",
               "description": "Files to validate",
               "goal": "All child components marked as active"
             }
@@ -2168,14 +2168,14 @@
           "tasks": [
             {
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Add ajv package for JSON schema validation",
                 "goal": "Task completed and verified"
               }
             },
             {
               "__meta": {
-                "status": "draft",
+                "status": "active",
                 "description": "Create validation script that uses ajv to validate both files",
                 "goal": "Task completed and verified"
               }
@@ -2200,7 +2200,7 @@
           "__meta": {
             "type": "component",
             "description": "Command-line utilities that provide deterministic automation for the jkspec worker",
-            "status": "draft",
+            "status": "active",
             "tags": [
               "cli",
               "tooling",
@@ -2219,7 +2219,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python bootstrapper that provisions a virtual environment and installs project requirements",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "bootstrap",
@@ -2246,7 +2246,7 @@
                 "--skip-install": "Skips dependency installation even when a requirements file exists.",
                 "--recreate": "Removes the existing environment before creating a fresh one.",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Arguments",
                   "goal": "Arguments defined and documented"
                 }
@@ -2260,7 +2260,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Bash + jq renderer that converts a spec into a Markdown inspection file",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "bash",
                   "jq",
@@ -2293,7 +2293,7 @@
                 "json-file": "Source JSON file (defaults to .jkspec/source.json)",
                 "output-md": "Output Markdown path (defaults to .tmp/<spec-id>.md)",
                 "__meta": {
-                  "status": "draft",
+                  "status": "active",
                   "description": "Arguments",
                   "goal": "Arguments defined and documented"
                 }
@@ -2303,7 +2303,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft internal specs in source.json",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "analysis",
@@ -2334,7 +2334,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python helper that lists draft project specs in project.json",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "analysis",
@@ -2365,7 +2365,7 @@
               "__meta": {
                 "type": "cli-tool",
                 "description": "Python wrapper that executes the worker bootstrap first_command to initialize agent context",
-                "status": "draft",
+                "status": "active",
                 "tags": [
                   "python",
                   "bootstrap",
@@ -2386,7 +2386,7 @@
               "implementation": "Executes: jq '.specs.__jkspec.components.worker | with_entries(.value |= (if type == \"object\" then .description else . end))' .jkspec/source.json"
             },
             "__meta": {
-              "status": "draft",
+              "status": "active",
               "description": "Utilities",
               "goal": "All child components marked as active"
             }

@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -ne 3 ]; then
-  echo "Usage: make_md_view.sh <spec-id> <json-file> <output-md>" >&2
-  exit 1
-fi
+# Get repository root (two levels up from this script)
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-SPEC_ID="$1"
-JSON_FILE="$2"
-OUTPUT_MD="$3"
+# Default values for agent-friendly zero-config invocation
+SPEC_ID="${1:-__jkspec.components.cli}"
+JSON_FILE="${2:-$REPO_ROOT/.jkspec/source.json}"
+OUTPUT_MD="${3:-$REPO_ROOT/.tmp/$(echo "$SPEC_ID" | tr '.' '_').md}"
 
 if [ ! -f "$JSON_FILE" ]; then
   echo "Spec JSON file not found: $JSON_FILE" >&2
