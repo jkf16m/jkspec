@@ -114,6 +114,57 @@ Running `ajv` on both spec files after every change adds a required (but importa
    jq '.specs' .jkspec-project/project.json
    ```
 
+## Dual-File Architecture
+
+jkspec separates **framework specifications** from **project specifications** using two distinct JSON files:
+
+### `.jkspec/source.json` – Framework Specs
+- Contains all jkspec framework definitions, worker behavior, and internal components
+- All specs here use `__` prefix (e.g., `__jkspec`, `__jkspec.components.worker`)
+- **Read-only for users** – only modify if extending the framework itself
+- Shared across all projects using jkspec
+
+### `.jkspec-project/project.json` – Your Project Specs
+- Contains all user/project-specific specifications
+- **Auto-created** by agents on first spec operation if it doesn't exist
+- All user specs go here by default (no `__` prefix)
+- Unique to your project, version-controlled with your code
+
+### File Selection Logic
+The agent determines which file to use based on spec naming:
+- **Specs with `__` prefix** → `.jkspec/source.json` (framework)
+- **Specs without `__` prefix** → `.jkspec-project/project.json` (project)
+
+This separation ensures:
+- ✅ Framework updates don't touch project specs
+- ✅ Project specs stay isolated from framework internals
+- ✅ Clear namespace boundaries (`__` = internal, no prefix = user)
+- ✅ Both files validate against the same `jkspec.schema.json`
+
+### Auto-Creation of project.json
+When you (or an agent) create your first project spec, the agent will automatically initialize `.jkspec-project/project.json` with this minimal template:
+
+```json
+{
+  "project": {
+    "name": "your-project-name",
+    "description": "Your project description",
+    "version": "0.1.0",
+    "architecture": {
+      "style": "Define your architecture style",
+      "pattern": "Define your patterns"
+    },
+    "conventions": {
+      "spec_location": ".jkspec-project/project.json"
+    },
+    "decisions": []
+  },
+  "specs": {}
+}
+```
+
+You can also create this file manually before your first spec operation.
+
 ## Core Concepts
 
 - **Project metadata** – Each spec file starts with a `project` object describing the system that file covers (framework vs. your app).
@@ -121,7 +172,6 @@ Running `ajv` on both spec files after every change adds a required (but importa
 - **Status lifecycle** – `draft → active → deprecated` keeps implementation state explicit.
 - **Hierarchical structure** – Specs can nest arbitrary components using keys such as `children`, `components`, `tests`, or `endpoints`.
 - **Internal specs** – Identifiers prefixed with `__` belong to the jkspec framework itself; leave them alone unless you are modifying the framework.
-- **Dual-file architecture** – `.jkspec/source.json` holds the framework and worker definitions; `.jkspec-project/project.json` holds everything about your project.
 - **Traceability tasks** – Specs can include `tasks` arrays (`[{ name, description, done }]`) to capture step-by-step implementation progress.
 - **Direct `jq` operations** – `jq` is the interface for reading and writing specs; there is no separate CLI abstraction.
 
