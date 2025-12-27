@@ -2,6 +2,7 @@
 
 # Schema Validation Test Suite
 # Tests ajv validation against jkspec.schema.json
+# This test suite validates both test fixtures AND actual source.json/project.json files
 
 SCHEMA=".jkspec/jkspec.schema.json"
 TEST_DIR=".jkspec/tests/schema-validation"
@@ -14,6 +15,15 @@ echo ""
 # Test counter
 PASSED=0
 FAILED=0
+
+# First, check if ajv is installed
+if ! command -v ajv > /dev/null 2>&1; then
+    echo "✗ ERROR: ajv is not installed. Please install it first:"
+    echo "  npm install -g ajv-cli"
+    exit 1
+fi
+echo "✓ ajv is installed"
+echo ""
 
 # Test 1: Valid spec should pass
 echo "Test 1: Valid spec should PASS validation"
@@ -55,6 +65,32 @@ if ajv validate -s "$SCHEMA" -d ".jkspec/source.json" --spec=draft2020 --strict=
     ((PASSED++))
 else
     echo "✗ FAIL: source.json should validate"
+    ((FAILED++))
+fi
+echo ""
+
+# Test 5: Project.json should validate (if it exists)
+echo "Test 5: project.json should PASS validation (if exists)"
+if [ -f ".jkspec-project/project.json" ]; then
+    if ajv validate -s "$SCHEMA" -d ".jkspec-project/project.json" --spec=draft2020 --strict=false > /dev/null 2>&1; then
+        echo "✓ PASS: project.json validated successfully"
+        ((PASSED++))
+    else
+        echo "✗ FAIL: project.json should validate"
+        ((FAILED++))
+    fi
+else
+    echo "⊘ SKIP: project.json does not exist"
+fi
+echo ""
+
+# Test 6: Verify schema file itself is valid JSON
+echo "Test 6: jkspec.schema.json should be valid JSON"
+if jq empty "$SCHEMA" > /dev/null 2>&1; then
+    echo "✓ PASS: schema file is valid JSON"
+    ((PASSED++))
+else
+    echo "✗ FAIL: schema file is not valid JSON"
     ((FAILED++))
 fi
 echo ""

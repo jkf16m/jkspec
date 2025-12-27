@@ -5,7 +5,7 @@
     "__meta": {
       "type": "test-project",
       "description": "Valid test spec for schema validation",
-      "status": "active",
+      "done": true,
       "goal": "Valid test project"
     }
   },
@@ -14,7 +14,7 @@
       "__meta": {
         "type": "component",
         "description": "A valid test specification",
-        "status": "active",
+        "done": true,
         "goal": "Test spec is complete and validated"
       },
       "details": "This is a valid spec with all required fields"
