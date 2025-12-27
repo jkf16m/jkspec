@@ -390,6 +390,57 @@
               "description": "Defines initialization steps and first command executed when the worker starts",
               "status": "active",
               "goal": "Configuration defined and applied"
+            },
+            "context_comparison_strategy": {
+              "description": "Protocol for comparing user requests against bootstrap output to determine when deeper context queries are needed",
+              "principle": "Bootstrap output contains SUMMARIES intended as navigation aids, not complete operational definitions",
+              "workflow": [
+                "When user makes a request, compare the request topic against bootstrap output fields",
+                "If user request relates to a bootstrap field that shows summary/null/truncated data, recognize this as a signal",
+                "The summary is intentionally shallow - worker MUST query deeper into that specific path",
+                "Fetch the full detailed specification from source.json using targeted jq queries",
+                "Use the detailed spec (not the summary) to fulfill the user request accurately"
+              ],
+              "examples": {
+                "example_1": {
+                  "user_request": "How does the implement command work?",
+                  "bootstrap_shows": "commands_definitions: null (or brief summary)",
+                  "worker_action": "Run: jq .specs.__jkspec.components.worker.commands_definitions.implement .jkspec/source.json",
+                  "rationale": "Bootstrap null/summary signals that full definition exists deeper in source.json"
+                },
+                "example_2": {
+                  "user_request": "What are the worker guidelines?",
+                  "bootstrap_shows": "guidelines: [array of strings]",
+                  "worker_action": "Bootstrap already provided full guidelines array - use it directly",
+                  "rationale": "Full data was already loaded, no additional query needed"
+                },
+                "example_3": {
+                  "user_request": "Update the jq_operations safety section",
+                  "bootstrap_shows": "jq_operations: null",
+                  "worker_action": "Run: jq .specs.__jkspec.components.worker.jq_operations.safety .jkspec/source.json",
+                  "rationale": "Need full current state before making modifications"
+                }
+              },
+              "key_indicators": {
+                "needs_deeper_query": [
+                  "Bootstrap field shows null",
+                  "Bootstrap field shows brief string summary instead of full structure",
+                  "Bootstrap field shows {\\\"__jq\\\": <number>} indicating nested complexity",
+                  "User asks to modify/update a specific subsection",
+                  "User asks detailed questions about implementation or behavior"
+                ],
+                "use_bootstrap_directly": [
+                  "Bootstrap field contains complete array or simple value",
+                  "User asks general navigation question (\\\"what commands are available?\\\")",
+                  "Bootstrap data is sufficient to answer the question"
+                ]
+              },
+              "rationale": "Bootstrap is designed for minimal initial context. Summaries are intentional signals that detailed specs exist and should be fetched on-demand when relevant to user request.",
+              "__meta": {
+                "status": "active",
+                "description": "Strategy for intelligently expanding context based on user request comparison with bootstrap output",
+                "goal": "Enable worker to recognize when bootstrap summaries need expansion via targeted queries"
+              }
             }
           },
           "commands_location": ".opencode/command",
@@ -456,7 +507,8 @@
             "Status transition rule: A spec can only be marked as active when ALL its child components (nested objects, array items with __meta) are also marked as active",
             "Upward propagation: When implementing leaf tasks, always check if completing them allows parent specs to transition from draft to active",
             "Prevent spec drift: Never leave specs in an ambiguous state - every layer must have clear status that reflects its actual implementation state",
-            "Spec definition: Any object with __meta is a spec - no specific field name required, can exist anywhere in the tree"
+            "Spec definition: Any object with __meta is a spec - no specific field name required, can exist anywhere in the tree",
+            "MANDATORY: Before executing ANY user request, compare the request against bootstrap output. If the request relates to a field showing null, summary, or truncated data in bootstrap, the worker MUST fetch full detailed specs using targeted jq queries. Bootstrap summaries are intentional signals that complete definitions exist in source.json and should be loaded on-demand."
           ],
           "complex_specs": {
             "description": "How to handle specs with multiple components",
