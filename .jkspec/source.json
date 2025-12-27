@@ -564,15 +564,21 @@
               }
             },
             "implement": {
-              "description": "Review all draft specs, select a target, and drive it to implementation",
+              "description": "Review all draft specs, analyze task structure, suggest optimal worker allocation, and drive parallel or sequential implementation to completion",
               "steps": [
                 "Discover all pending drafts using get_all_pending_source_drafts.py and get_all_pending_project_drafts.py",
                 "Sort results by JSON path length (longest first) to prioritize most specific tasks",
-                "Present the draft list starting with leaf-node tasks, let user choose or pick the most specific",
-                "Read the chosen spec in detail, noting any nested tasks, dependencies, and implementation locations",
-                "Execute the implementation plan (code changes, tests, documentation) or spawn a subagent if complexity demands it",
-                "Update the spec status from draft to active when complete. CHECK: all child components must be active before marking parent as active. Update upward through the tree.",
-                "Validate the edited spec file against schema and summarize the implementation outcome"
+                "Analyze task tree structure to identify independent branches suitable for parallel execution",
+                "Calculate and present suggested optimal worker count with rationale based on task structure",
+                "Wait for user confirmation on worker count and task allocation strategy",
+                "If multi-worker confirmed: delegate entire task trees to parallel jkspec-worker agents via Task tool",
+                "If single-worker: select most specific draft and proceed with implementation",
+                "Each worker (or single worker) reads assigned spec in detail, noting nested tasks and dependencies",
+                "Each worker executes implementation plan (code changes, tests, docs) or spawns subagents if needed",
+                "Each worker updates spec status from draft to active. CHECK: all child components must be active before marking parent active",
+                "Each worker propagates status upward through tree when children complete",
+                "Validate edited spec files against schema",
+                "Aggregate and summarize implementation outcomes from all workers"
               ],
               "draft_discovery": {
                 "description": "Use CLI tools to find all pending drafts across both files",
@@ -606,6 +612,51 @@
                 "status": "active",
                 "description": "Command definition for implementing draft specs using longest-path-first strategy",
                 "goal": "All child components marked as active"
+              },
+              "worker_delegation": {
+                "description": "Strategy for delegating task trees to multiple parallel workers",
+                "workflow": [
+                  "After discovering and displaying all pending drafts, analyze the task tree structure",
+                  "Identify independent task branches that can be parallelized (separate specs or major subtrees)",
+                  "Calculate optimal worker count based on analysis factors",
+                  "Present suggested worker allocation to user with clear rationale",
+                  "Wait for user confirmation or adjustment of worker count",
+                  "Delegate entire task trees to parallel workers or proceed with single-worker implementation"
+                ],
+                "worker_count_analysis": {
+                  "factors": [
+                    "Number of independent task branches (top-level specs or major subtrees)",
+                    "Task complexity (deep nested structures vs flat tasks)",
+                    "Total task count",
+                    "Task interdependencies (prefer independent branches for parallelization)"
+                  ],
+                  "heuristics": {
+                    "single_worker": "1-3 tasks OR highly interdependent tasks",
+                    "two_workers": "4-8 tasks with 2 independent branches",
+                    "three_workers": "9-15 tasks with 3+ independent branches",
+                    "four_plus_workers": "16+ tasks with 4+ independent branches"
+                  }
+                },
+                "delegation_strategy": {
+                  "approach": "Assign entire task trees (root spec + all children) to individual workers",
+                  "benefits": [
+                    "Parallel execution reduces total time",
+                    "Each worker maintains full context for their tree",
+                    "Independent validation per worker",
+                    "Reduced risk of merge conflicts when working on separate specs"
+                  ],
+                  "coordination": "Main worker aggregates results and reports final status from all parallel workers"
+                },
+                "user_confirmation": {
+                  "required": true,
+                  "format": "Present: (1) List of all pending drafts grouped by branch, (2) Suggested worker count with rationale, (3) Proposed task allocation per worker",
+                  "wait_for": "User to confirm worker count or request adjustment before proceeding with delegation"
+                },
+                "__meta": {
+                  "status": "active",
+                  "description": "Multi-worker delegation strategy for parallel implementation",
+                  "goal": "Enable parallel task execution for faster implementation of independent specs"
+                }
               }
             },
             "dev-mode": {
@@ -797,7 +848,48 @@
               "status": "active",
               "goal": "All child components marked as active"
             },
-            "description": "Library of jq snippets for reading, writing, deleting, and advanced operations"
+            "description": "Library of jq snippets for reading, writing, deleting, and advanced operations",
+            "safety": {
+              "description": "Critical patterns to avoid data loss when modifying JSON files",
+              "safe_patterns": {
+                "single_update": {
+                  "pattern": "jq \".path.to.field = value\" file.json > /tmp/updated.json && mv /tmp/updated.json file.json",
+                  "explanation": "Updates one field and returns the FULL modified JSON"
+                },
+                "multiple_updates": {
+                  "pattern": "jq \".path1 = val1 | .path2 = val2\" file.json > /tmp/updated.json && mv /tmp/updated.json file.json",
+                  "explanation": "Chain multiple assignments with pipes, returns FULL JSON"
+                },
+                "nested_object_creation": {
+                  "pattern": "jq \".specs.worker.new_section = {field1: \"val1\", field2: \"val2\"}\" file.json > /tmp/updated.json && mv /tmp/updated.json file.json",
+                  "explanation": "Creates nested objects safely"
+                }
+              },
+              "dangerous_patterns": {
+                "pipe_with_selection": {
+                  "pattern": "jq \".path = value | .path\" file.json",
+                  "problem": "The final | .path SELECTS only that path, discarding the rest of the JSON!",
+                  "result": "Entire file replaced with just that fragment",
+                  "fix": "Remove the | .path at the end"
+                },
+                "selection_after_update": {
+                  "pattern": "jq \".specs.worker.field = value | .specs.worker\" file.json",
+                  "problem": "Returns only .specs.worker instead of full JSON",
+                  "result": "File becomes just the worker object, losing everything else",
+                  "fix": "Never pipe to a selector after assignment"
+                }
+              },
+              "validation_checkpoint": {
+                "rule": "After ANY modification to source.json or project.json, IMMEDIATELY validate against schema",
+                "command": "ajv validate -s .jkspec/jkspec.schema.json -d <file> --spec=draft2020 --strict=false",
+                "rationale": "Catches structural errors before they compound"
+              },
+              "__meta": {
+                "status": "active",
+                "description": "Safety guidelines for jq operations to prevent data loss",
+                "goal": "Prevent destructive jq patterns that can corrupt JSON files"
+              }
+            }
           },
           "workflow": {
             "description": "Worker follows a consultative approach when helping users implement new specs",
