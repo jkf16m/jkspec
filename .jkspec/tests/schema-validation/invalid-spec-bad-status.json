@@ -1,0 +1,19 @@
+{
+  "project": {
+    "name": "test-invalid-status",
+    "__meta": {
+      "type": "test-project",
+      "description": "Invalid status value",
+      "status": "invalid-status"
+    }
+  },
+  "specs": {
+    "test-spec": {
+      "__meta": {
+        "type": "component",
+        "description": "Spec with invalid status",
+        "status": "invalid"
+      }
+    }
+  }
+}

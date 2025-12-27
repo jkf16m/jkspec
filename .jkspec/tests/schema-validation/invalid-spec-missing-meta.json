@@ -1,0 +1,10 @@
+{
+  "project": {
+    "name": "test-invalid-spec"
+  },
+  "specs": {
+    "test-spec": {
+      "details": "This spec is missing __meta field"
+    }
+  }
+}

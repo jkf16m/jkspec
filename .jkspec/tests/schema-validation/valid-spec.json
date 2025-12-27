@@ -1,0 +1,23 @@
+{
+  "project": {
+    "name": "test-valid-spec",
+    "version": "1.0.0",
+    "__meta": {
+      "type": "test-project",
+      "description": "Valid test spec for schema validation",
+      "status": "active",
+      "goal": "Valid test project"
+    }
+  },
+  "specs": {
+    "test-spec": {
+      "__meta": {
+        "type": "component",
+        "description": "A valid test specification",
+        "status": "active",
+        "goal": "Test spec is complete and validated"
+      },
+      "details": "This is a valid spec with all required fields"
+    }
+  }
+}
